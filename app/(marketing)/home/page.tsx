@@ -1,0 +1,1 @@
+export default function MarketingHome() { return <h1>Marketing Home</h1>; }
