@@ -1,0 +1,1 @@
+export function GET(_req, { params }) { return new Response('Post ' + params.id); }
