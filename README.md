@@ -202,8 +202,6 @@ Layouts wrap a subtree and preserve state across navigation. Example: `dashboard
 
 ## 📊 Routing Flow Diagrams
 
-> **📱 Mobile users**: If diagrams don't render, expand the "Text view" sections below each diagram.
-
 ### Static Routes
 
 ```mermaid
@@ -213,16 +211,6 @@ graph LR
     B --> D(/about)
     C --> E(/)
 ```
-
-<details>
-<summary>📱 Text view</summary>
-
-```
-app/
-├── about/page.tsx  →  /about
-└── page.tsx        →  /
-```
-</details>
 
 ### Dynamic Routes Flow
 
@@ -234,19 +222,6 @@ graph LR
     C --> E("/products/123/reviews/[reviewId]")
     E --> F(/products/123/reviews/789)
 ```
-
-<details>
-<summary>📱 Text view</summary>
-
-```
-/products
-    └── /products/[id]
-            ├── /products/123
-            │       └── /products/123/reviews/[reviewId]
-            │               └── /products/123/reviews/789
-            └── /products/456
-```
-</details>
 
 ### Catch-All Routes
 
@@ -260,17 +235,6 @@ graph TD
     E --> H(/help/x/y)
 ```
 
-<details>
-<summary>📱 Text view</summary>
-
-```
-[...slug] (required)          [[...slug]] (optional)
-├── /help/a                   ├── /help          ← also matches!
-├── /help/a/b                 ├── /help/x
-└── /help/a/b/c               └── /help/x/y
-```
-</details>
-
 ### Route Groups Flow
 
 ```mermaid
@@ -283,20 +247,6 @@ graph TD
     C --> G(/register)
 ```
 
-<details>
-<summary>📱 Text view</summary>
-
-```
-app/
-├── (marketing)/      ← group, not in URL
-│   ├── home/    →  /home
-│   └── contact/ →  /contact
-└── (auth)/           ← group, not in URL
-    ├── login/   →  /login
-    └── register/→  /register
-```
-</details>
-
 ### Layout Nesting
 
 ```mermaid
@@ -305,21 +255,6 @@ graph TD
     B --> C(/dashboard)
     B --> D(/dashboard/settings)
 ```
-
-<details>
-<summary>📱 Text view</summary>
-
-```
-┌─────────────────────────────┐
-│ Root Layout                 │
-│ ┌─────────────────────────┐ │
-│ │ Dashboard Layout        │ │
-│ │   /dashboard            │ │
-│ │   /dashboard/settings   │ │
-│ └─────────────────────────┘ │
-└─────────────────────────────┘
-```
-</details>
 
 ### Parallel Routes
 
@@ -330,17 +265,6 @@ graph TD
     A --> D("@analytics")
 ```
 
-<details>
-<summary>📱 Text view</summary>
-
-```
-layout.tsx receives:
-├── children     ← main page content
-├── @sidebar     ← parallel slot
-└── @analytics   ← parallel slot
-```
-</details>
-
 ### Intercepting Routes Flow
 
 ```mermaid
@@ -349,15 +273,6 @@ graph LR
     B --> C(/photo/123)
     C --> D(Full Page)
 ```
-
-<details>
-<summary>📱 Text view</summary>
-
-```
-Soft nav (Link):  /feed → click → Modal overlay (photo visible)
-Hard nav (URL):   /photo/123 → Full page render
-```
-</details>
 
 ### Request Flow with Proxy
 
@@ -369,22 +284,6 @@ graph TD
     C --> E(Response)
 ```
 
-<details>
-<summary>📱 Text view</summary>
-
-```
-Request
-   ↓
-proxy.ts ──→ auth check
-   ↓              ↓
-   OK          FAIL → Redirect
-   ↓
-Route Handler
-   ↓
-Response
-```
-</details>
-
 ### API Routes
 
 ```mermaid
@@ -394,16 +293,6 @@ graph LR
     B --> D(List/Create)
     C --> E(Get/Delete)
 ```
-
-<details>
-<summary>📱 Text view</summary>
-
-```
-Client
-├── GET/POST api/posts      → List / Create
-└── GET/DELETE api/posts/123 → Read / Delete
-```
-</details>
 
 ---
 
