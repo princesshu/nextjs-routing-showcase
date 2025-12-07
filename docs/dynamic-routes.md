@@ -20,10 +20,17 @@ app/
 
 ```tsx
 // app/products/[id]/page.tsx
-export default function ProductPage({ params }) {
-  return <h1>Product: {params.id}</h1>;
+export default async function ProductPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+  return <h1>Product: {id}</h1>;
 }
 ```
+
+> **Note**: Since Next.js 15, `params` is a Promise and must be awaited.
 
 ## Diagram
 

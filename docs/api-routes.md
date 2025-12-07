@@ -39,9 +39,10 @@ export async function POST(request: Request) {
 // app/api/posts/[id]/route.ts
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const post = await getPost(params.id);
+  const { id } = await params;
+  const post = await getPost(id);
 
   if (!post) {
     return Response.json(
@@ -55,12 +56,15 @@ export async function GET(
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  await deletePost(params.id);
+  const { id } = await params;
+  await deletePost(id);
   return new Response(null, { status: 204 });
 }
 ```
+
+> **Note**: Since Next.js 15, `params` is a Promise and must be awaited in Route Handlers too.
 
 ## Diagram
 
