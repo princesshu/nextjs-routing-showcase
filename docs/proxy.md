@@ -68,7 +68,11 @@ Request: /dashboard/settings
 |------------|------------|
 | `middleware.ts` | `proxy.ts` |
 | `middleware()` | `proxy()` |
-| Edge runtime (optional) | Node.js runtime (fixed) |
+| Edge runtime (optional) | Node.js runtime only |
+
+> **Important**: Edge runtime is NOT supported in `proxy.ts`. If you need Edge runtime, continue using `middleware.ts`. The rename clarifies that proxy operates at the network boundary for request routing.
+>
+> A codemod is available: `npx @next/codemod@latest middleware-to-proxy .`
 
 ## When to use
 

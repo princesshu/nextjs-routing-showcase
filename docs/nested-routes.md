@@ -20,15 +20,22 @@ app/
 
 ```tsx
 // app/products/[id]/reviews/[reviewId]/page.tsx
-export default function ReviewPage({ params }) {
+export default async function ReviewPage({
+  params,
+}: {
+  params: Promise<{ id: string; reviewId: string }>;
+}) {
+  const { id, reviewId } = await params;
   return (
     <div>
-      <h1>Product: {params.id}</h1>
-      <h2>Review: {params.reviewId}</h2>
+      <h1>Product: {id}</h1>
+      <h2>Review: {reviewId}</h2>
     </div>
   );
 }
 ```
+
+> **Note**: Since Next.js 15, `params` is a Promise and must be awaited.
 
 ## Diagram
 

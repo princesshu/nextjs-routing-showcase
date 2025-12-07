@@ -31,11 +31,18 @@ app/help/[[...slug]]/page.tsx
 
 ```tsx
 // app/help/[[...slug]]/page.tsx
-export default function HelpPage({ params }) {
-  const path = params.slug?.join('/') || 'index';
+export default async function HelpPage({
+  params,
+}: {
+  params: Promise<{ slug?: string[] }>;
+}) {
+  const { slug } = await params;
+  const path = slug?.join('/') || 'index';
   return <h1>Help: {path}</h1>;
 }
 ```
+
+> **Note**: Since Next.js 15, `params` is a Promise and must be awaited.
 
 ## Diagram
 
