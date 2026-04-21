@@ -1,1 +1,9 @@
-export function GET(_req, { params }) { return new Response('Post ' + params.id); }
+import { NextRequest } from 'next/server';
+
+export async function GET(
+  _req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params;
+  return new Response('Post ' + id);
+}

@@ -13,11 +13,15 @@ Special syntax in the folder name:
 
 ## Classic example: Modal
 
+Because interception typically targets a **parallel slot**, the enclosing layout must accept that slot as a prop (see [Parallel Routes](./parallel-routes.md)). The slot also needs a `default.tsx` fallback for when no modal is active.
+
 ```
 app/
 ├─ feed/
+│  ├─ layout.tsx                  → accepts `modal` prop (required)
 │  ├─ page.tsx                    → /feed
 │  └─ @modal/
+│     ├─ default.tsx              → renders when no modal is open
 │     └─ (..)photo/
 │        └─ [id]/
 │           └─ page.tsx           → Modal overlay
@@ -26,9 +30,28 @@ app/
       └─ page.tsx                 → /photo/123 (full page)
 ```
 
+```tsx
+// app/feed/layout.tsx
+export default function FeedLayout({
+  children,
+  modal,
+}: {
+  children: React.ReactNode;
+  modal: React.ReactNode;
+}) {
+  return (
+    <>
+      {children}
+      {modal}
+    </>
+  );
+}
+```
+
 ## Behavior
 
 **Click in the feed:**
+
 ```
 /feed → click → /photo/123
                     ↓
@@ -37,6 +60,7 @@ app/
 ```
 
 **Direct URL or refresh:**
+
 ```
 /photo/123 → Full photo page renders
 ```

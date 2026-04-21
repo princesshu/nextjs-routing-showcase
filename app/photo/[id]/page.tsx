@@ -1,3 +1,8 @@
-export default function PhotoPage({ params }: { params: { id: string } }) {
-  return <h1>Photo {params.id}</h1>;
+export default async function Photo({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+  return <h1>Photo {id}</h1>;
 }

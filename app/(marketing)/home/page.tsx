@@ -1,1 +1,3 @@
-export default function MarketingHome() { return <h1>Marketing Home</h1>; }
+export default function MarketingHome() {
+  return <h1>Marketing Home</h1>;
+}

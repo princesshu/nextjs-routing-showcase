@@ -30,6 +30,12 @@ yarn-error.log*
 *.swp
 *.swo
 
+# Claude Code – user-local only (skills/agents/commands stay tracked if present)
+.claude/settings.local.json
+.claude/projects/
+.claude/todos/
+.claude/cache/
+
 # OS
 .DS_Store
 Thumbs.db

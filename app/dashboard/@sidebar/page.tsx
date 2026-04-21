@@ -1,1 +1,3 @@
-export default function Sidebar() { return <aside>Sidebar content</aside>; }
+export default function Sidebar() {
+  return <aside>Sidebar content</aside>;
+}
