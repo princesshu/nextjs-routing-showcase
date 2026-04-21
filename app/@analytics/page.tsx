@@ -1,1 +1,3 @@
-export default function Analytics() { return <p>Analytics Panel</p>; }
+export default function Analytics() {
+  return <p>Analytics Panel</p>;
+}

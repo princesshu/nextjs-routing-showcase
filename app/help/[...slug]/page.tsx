@@ -1,3 +1,8 @@
-export default function Docs({ params }) {
-  return <h1>Docs Path: {params.slug.join("/")}</h1>;
+export default async function Docs({
+  params,
+}: {
+  params: Promise<{ slug: string[] }>;
+}) {
+  const { slug } = await params;
+  return <h1>Docs Path: {slug.join('/')}</h1>;
 }

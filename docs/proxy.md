@@ -64,10 +64,10 @@ Request: /dashboard/settings
 
 ## Changes in Next.js 16
 
-| Next.js 15 | Next.js 16 |
-|------------|------------|
-| `middleware.ts` | `proxy.ts` |
-| `middleware()` | `proxy()` |
+| Next.js 15              | Next.js 16           |
+| ----------------------- | -------------------- |
+| `middleware.ts`         | `proxy.ts`           |
+| `middleware()`          | `proxy()`            |
 | Edge runtime (optional) | Node.js runtime only |
 
 > **Important**: Edge runtime is NOT supported in `proxy.ts`. If you need Edge runtime, continue using `middleware.ts`. The rename clarifies that proxy operates at the network boundary for request routing.

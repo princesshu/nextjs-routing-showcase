@@ -1,5 +1,12 @@
-export default function PhotoModal({ params }) {
-  return <div style={{ background: '#eee', padding: 20 }}>
-    <h1>Photo Modal {params.id}</h1>
-  </div>;
+export default async function PhotoModal({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+  return (
+    <div style={{ background: '#eee', padding: 20 }}>
+      <h1>Photo Modal {id}</h1>
+    </div>
+  );
 }

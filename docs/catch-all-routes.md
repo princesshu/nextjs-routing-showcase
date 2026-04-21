@@ -20,25 +20,27 @@ app/help/[...slug]/page.tsx
 Same as above, but also matches the empty case.
 
 ```
-app/help/[[...slug]]/page.tsx
+app/docs/[[...slug]]/page.tsx
 
-/help          → slug = undefined
-/help/a        → slug = ["a"]
-/help/a/b      → slug = ["a", "b"]
+/docs          → slug = undefined
+/docs/a        → slug = ["a"]
+/docs/a/b      → slug = ["a", "b"]
 ```
+
+> **Heads up:** Don't place a required `[...slug]` and an optional `[[...slug]]` as siblings under the same parent — they both match non-empty paths and Next.js 16.2.3+ rejects this at build time (`InvariantError: Unexpected empty path segments match`). Put them under different parents (here: `help/[...slug]` and `docs/[[...slug]]`).
 
 ## Example
 
 ```tsx
-// app/help/[[...slug]]/page.tsx
-export default async function HelpPage({
+// app/docs/[[...slug]]/page.tsx
+export default async function DocsPage({
   params,
 }: {
   params: Promise<{ slug?: string[] }>;
 }) {
   const { slug } = await params;
   const path = slug?.join('/') || 'index';
-  return <h1>Help: {path}</h1>;
+  return <h1>Docs: {path}</h1>;
 }
 ```
 
@@ -47,13 +49,13 @@ export default async function HelpPage({
 ## Diagram
 
 ```
-URL: /help/getting-started/installation
+URL: /docs/getting-started/installation
               │
               ▼
    [[...slug]] = ["getting-started", "installation"]
               │
               ▼
-   Breadcrumb: Help > Getting Started > Installation
+   Breadcrumb: Docs > Getting Started > Installation
 ```
 
 ## When to use

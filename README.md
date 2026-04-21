@@ -62,7 +62,7 @@ app/
 ```
 app/
 ├─ help/[...slug]/page.tsx                      → /help/a/b/c
-├─ help/[[...slug]]/page.tsx                    → /help OR /help/a/b
+├─ docs/[[...slug]]/page.tsx                    → /docs OR /docs/a/b
 ```
 
 </details>
@@ -85,12 +85,14 @@ app/
 
 ```
 app/
+├─ layout.tsx                                   → root layout (accepts `analytics` slot)
 ├─ dashboard/layout.tsx                         → layout for /dashboard/*
 ├─ dashboard/page.tsx                           → /dashboard
 ├─ dashboard/settings/page.tsx                  → /dashboard/settings
 ├─ dashboard/@sidebar/page.tsx                  → parallel sidebar
 ├─ dashboard/@sidebar/default.tsx               → parallel route fallback
-├─ @analytics/page.tsx                          → parallel route
+├─ @analytics/page.tsx                          → root-level parallel route
+├─ @analytics/default.tsx                       → fallback for unmatched siblings
 ```
 
 </details>
@@ -100,8 +102,10 @@ app/
 
 ```
 app/
+├─ feed/layout.tsx                              → accepts `modal` slot
 ├─ feed/page.tsx                                → /feed
 ├─ feed/@modal/(..)photo/[id]/page.tsx          → modal (intercepting)
+├─ feed/@modal/default.tsx                      → fallback when no modal is open
 ├─ photo/[id]/page.tsx                          → /photo/123 (full page)
 ```
 
@@ -172,7 +176,9 @@ Combine multiple dynamic segments for deeply nested routes.
 ### 4. Catch-All & Optional Catch-All
 
 - `/help/[...slug]` → matches `/help/a`, `/help/a/b`, `/help/a/b/c`
-- `/help/[[...slug]]` → also matches `/help` (optional)
+- `/docs/[[...slug]]` → also matches `/docs` (optional)
+
+> **Why two different parents?** A required `[...slug]` and an optional `[[...slug]]` as siblings under the same parent create an ambiguous match for non-empty paths (e.g. `/help/a` would match both). Next.js 16.2.3+ rejects this at build time. Separate parents — one `help/`, one `docs/` — is the idiomatic fix.
 
 ### 5. Route Groups
 
@@ -186,9 +192,35 @@ Layouts wrap a subtree and preserve state across navigation. Example: `dashboard
 
 `@analytics` or `@sidebar` → render multiple UI slots simultaneously in the same layout.
 
+> A slot is only rendered if the enclosing `layout.tsx` receives it as a prop and places it in the JSX. Every named slot also needs a `default.tsx` fallback so sibling routes don't 404.
+
+Example — root-level `@analytics` wired into the root layout:
+
+```tsx
+// app/layout.tsx
+export default function RootLayout({
+  children,
+  analytics,
+}: {
+  children: React.ReactNode;
+  analytics: React.ReactNode;
+}) {
+  return (
+    <html lang="en">
+      <body>
+        {children}
+        <section aria-label="analytics-slot">{analytics}</section>
+      </body>
+    </html>
+  );
+}
+```
+
 ### 8. Intercepting Routes
 
 `(..)` syntax overlays one route inside another, perfect for modal windows that preserve context.
+
+> Intercepting into a slot requires a matching layout. The `feed/@modal/(..)photo/[id]` slot only renders if `app/feed/layout.tsx` accepts a `modal` prop and renders it. The slot also needs `app/feed/@modal/default.tsx` for when no modal is active.
 
 ### 9. Proxy (Next.js 16)
 
@@ -230,9 +262,9 @@ graph TD
     A("help/[...slug]") --> B(/help/a)
     A --> C(/help/a/b)
     A --> D(/help/a/b/c)
-    E("help/[[...slug]]") --> F(/help)
-    E --> G(/help/x)
-    E --> H(/help/x/y)
+    E("docs/[[...slug]]") --> F(/docs)
+    E --> G(/docs/x)
+    E --> H(/docs/x/y)
 ```
 
 ### Route Groups Flow
@@ -298,22 +330,27 @@ graph LR
 
 ## 📄 Special Files
 
-| File | Purpose |
-|------|---------|
-| `layout.tsx` | Shared UI wrapper, preserves state |
-| `template.tsx` | Like layout, but re-mounts on navigation |
-| `loading.tsx` | Loading UI shown during navigation |
-| `error.tsx` | Error boundary for route segments |
-| `not-found.tsx` | Custom 404 page |
-| `forbidden.tsx` | Custom 403 page (Next.js 15+, **experimental**) |
+| File               | Purpose                                         |
+| ------------------ | ----------------------------------------------- |
+| `layout.tsx`       | Shared UI wrapper, preserves state              |
+| `template.tsx`     | Like layout, but re-mounts on navigation        |
+| `loading.tsx`      | Loading UI shown during navigation              |
+| `error.tsx`        | Error boundary for route segments               |
+| `not-found.tsx`    | Custom 404 page                                 |
+| `forbidden.tsx`    | Custom 403 page (Next.js 15+, **experimental**) |
 | `unauthorized.tsx` | Custom 401 page (Next.js 15+, **experimental**) |
-| `global-error.tsx` | Root-level error boundary |
-| `default.tsx` | Fallback for parallel routes |
+| `global-error.tsx` | Root-level error boundary                       |
+| `default.tsx`      | Fallback for parallel routes                    |
 
-> **Note**: `forbidden.tsx` and `unauthorized.tsx` require the experimental `authInterrupts` flag in `next.config.js`:
-> ```js
-> experimental: { authInterrupts: true }
+> **Note**: `forbidden.tsx` and `unauthorized.tsx` require the experimental `authInterrupts` flag in `next.config.ts`:
+>
+> ```ts
+> const nextConfig: NextConfig = {
+>   experimental: { authInterrupts: true },
+> };
 > ```
+>
+> They only render when your code calls `forbidden()` / `unauthorized()` from `next/navigation`.
 
 ---
 
@@ -354,12 +391,16 @@ docker run -p 3000:3000 nextjs-app
 
 ### Standalone Mode
 
-Add to `next.config.js`:
+Add to `next.config.ts`:
 
-```js
-module.exports = {
+```ts
+import type { NextConfig } from 'next';
+
+const nextConfig: NextConfig = {
   output: 'standalone',
 };
+
+export default nextConfig;
 ```
 
 ```bash
@@ -378,11 +419,15 @@ npm run start
 
 For static sites without server-side features:
 
-```js
-// next.config.js
-module.exports = {
+```ts
+// next.config.ts
+import type { NextConfig } from 'next';
+
+const nextConfig: NextConfig = {
   output: 'export',
 };
+
+export default nextConfig;
 ```
 
 ```bash

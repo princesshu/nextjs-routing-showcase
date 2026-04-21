@@ -45,10 +45,7 @@ export async function GET(
   const post = await getPost(id);
 
   if (!post) {
-    return Response.json(
-      { error: 'Not found' },
-      { status: 404 }
-    );
+    return Response.json({ error: 'Not found' }, { status: 404 });
   }
 
   return Response.json(post);
