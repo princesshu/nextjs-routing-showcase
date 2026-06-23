@@ -1,8 +1,12 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  // Turbopack is enabled by default in Next.js 16
-  // Add any custom configuration here
+  // Turbopack is the default bundler in Next.js 16 — no flag required.
+  experimental: {
+    // Enables forbidden() / unauthorized() and the forbidden.tsx /
+    // unauthorized.tsx special files used by app/account/page.tsx.
+    authInterrupts: true,
+  },
 };
 
 export default nextConfig;
