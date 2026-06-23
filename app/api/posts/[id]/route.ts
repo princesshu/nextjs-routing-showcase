@@ -1,9 +1,17 @@
-import { NextRequest } from 'next/server';
+import { NextResponse, NextRequest } from 'next/server';
 
 export async function GET(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  return new Response('Post ' + id);
+  return NextResponse.json({ id, title: `Post ${id}` });
+}
+
+export async function DELETE(
+  _req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params;
+  return NextResponse.json({ deleted: id });
 }

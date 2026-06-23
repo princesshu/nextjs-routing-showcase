@@ -30,11 +30,19 @@ This repository demonstrates all major routing patterns in modern Next.js (App R
 - Nested dynamic pages
 - Catch-all & optional catch-all
 - Route groups
+- Private folders (`_components`)
 - Layout & nested layouts
-- Parallel routes
-- Intercepting routes
+- Parallel routes (wired into a layout)
+- Intercepting routes (modal via client navigation)
 - Proxy (formerly Middleware)
-- API routes
+- API routes (multiple HTTP methods, `NextResponse.json`)
+- Static generation: `generateStaticParams`
+- Dynamic metadata: `generateMetadata` + title template
+- Server Actions (`'use server'`) with form `action`
+- Programmatic navigation: `redirect()`, `notFound()`
+- Auth interrupts: `forbidden()` / `unauthorized()`
+- Client navigation hooks: `usePathname` + `<Link>`
+- Metadata file conventions: `sitemap.ts`, `robots.ts`, `manifest.ts`, `icon.svg`
 - Special files: `loading.tsx`, `error.tsx`, `not-found.tsx`, `global-error.tsx`
 
 ---
@@ -116,8 +124,28 @@ app/
 
 ```
 app/
-├─ api/hello/route.ts                           → /api/hello
-├─ api/posts/[id]/route.ts                      → /api/posts/:id
+├─ api/hello/route.ts                           → /api/hello (GET, POST)
+├─ api/posts/[id]/route.ts                      → /api/posts/:id (GET, DELETE)
+```
+
+</details>
+
+<details>
+<summary><strong>Data, Metadata & Server Actions</strong></summary>
+
+```
+lib/data.ts                                     → shared in-memory dataset
+app/
+├─ products/[id]/page.tsx                       → generateStaticParams + generateMetadata + notFound()
+├─ blog/[slug]/page.tsx                         → generateStaticParams + generateMetadata + notFound()
+├─ (marketing)/contact/page.tsx                 → <form action={serverAction}>
+├─ (marketing)/contact/actions.ts               → 'use server' action + redirect()
+├─ account/page.tsx                             → forbidden() / unauthorized()
+├─ dashboard/_components/breadcrumb.tsx         → private folder, usePathname (client hook)
+├─ sitemap.ts                                   → /sitemap.xml
+├─ robots.ts                                    → /robots.txt
+├─ manifest.ts                                  → /manifest.webmanifest
+├─ icon.svg                                     → favicon (metadata file)
 ```
 
 </details>
@@ -220,7 +248,7 @@ export default function RootLayout({
 
 `(..)` syntax overlays one route inside another, perfect for modal windows that preserve context.
 
-> Intercepting into a slot requires a matching layout. The `feed/@modal/(..)photo/[id]` slot only renders if `app/feed/layout.tsx` accepts a `modal` prop and renders it. The slot also needs `app/feed/@modal/default.tsx` for when no modal is active.
+> Interception only triggers on **client-side navigation**. Open `/feed` and click a photo to see the modal; refreshing `/photo/1` directly renders the full page. The `feed/@modal/(..)photo/[id]` slot only renders because `app/feed/layout.tsx` accepts and renders a `modal` prop, and the slot has a `default.tsx` for when no modal is active.
 
 ### 9. Proxy (Next.js 16)
 
@@ -228,7 +256,23 @@ export default function RootLayout({
 
 ### 10. API Routes
 
-`app/api/*/route.ts` → handle RESTful endpoints with GET, POST, PUT, DELETE handlers.
+`app/api/*/route.ts` → handle RESTful endpoints with GET, POST, PUT, DELETE handlers, returning `NextResponse.json`.
+
+### 11. Static Generation & Dynamic Metadata
+
+`generateStaticParams` pre-renders one page per param at build time (`/products/[id]`, `/blog/[slug]` ship as SSG). `generateMetadata` resolves `<title>`/`<meta>` per route from the same async `params`.
+
+### 12. Server Actions
+
+`'use server'` functions run only on the server and are called directly from a `<form action={...}>` — no API route or client `fetch`. See `app/(marketing)/contact/`.
+
+### 13. Programmatic Navigation & Auth Interrupts
+
+`redirect()` and `notFound()` from `next/navigation` control flow from Server Components. With `experimental.authInterrupts`, `forbidden()` / `unauthorized()` render `forbidden.tsx` / `unauthorized.tsx`.
+
+### 14. Metadata File Conventions
+
+`sitemap.ts`, `robots.ts`, `manifest.ts`, and `icon.svg` are file-based routes too — they emit `/sitemap.xml`, `/robots.txt`, `/manifest.webmanifest`, and the favicon.
 
 ---
 
@@ -342,7 +386,7 @@ graph LR
 | `global-error.tsx` | Root-level error boundary                       |
 | `default.tsx`      | Fallback for parallel routes                    |
 
-> **Note**: `forbidden.tsx` and `unauthorized.tsx` require the experimental `authInterrupts` flag in `next.config.ts`:
+> **Note**: `forbidden.tsx` and `unauthorized.tsx` require the experimental `authInterrupts` flag, which **is enabled** in this repo's [`next.config.ts`](next.config.ts):
 >
 > ```ts
 > const nextConfig: NextConfig = {
@@ -350,7 +394,7 @@ graph LR
 > };
 > ```
 >
-> They only render when your code calls `forbidden()` / `unauthorized()` from `next/navigation`.
+> They only render when your code calls `forbidden()` / `unauthorized()` from `next/navigation` — see [`app/account/page.tsx`](app/account/page.tsx). Try `/account` (401), `/account?as=user` (403), `/account?as=admin` (ok).
 
 ---
 

@@ -70,7 +70,7 @@ Request: /dashboard/settings
 | `middleware()`          | `proxy()`            |
 | Edge runtime (optional) | Node.js runtime only |
 
-> **Important**: Edge runtime is NOT supported in `proxy.ts`. If you need Edge runtime, continue using `middleware.ts`. The rename clarifies that proxy operates at the network boundary for request routing.
+> **Important**: Edge runtime is NOT supported in `proxy.ts` — its runtime is `nodejs` and cannot be configured. If you still need the Edge runtime you can keep a `middleware.ts`, but it is **deprecated and will be removed in a future major version**. The rename clarifies that proxy operates at the network boundary for request routing.
 >
 > A codemod is available: `npx @next/codemod@latest middleware-to-proxy .`
 
