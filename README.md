@@ -1,8 +1,8 @@
 # Next.js Routing Showcase
 
-A small, runnable reference for file-system routing in the Next.js 16 App Router. Every convention below has a working route in [`app/`](app) and a short explanation in [`docs/`](docs).
+A small, runnable reference for file-system routing in the Next.js App Router. Every convention below has a working route in [`app/`](app) and a short explanation in [`docs/`](docs).
 
-Next.js 16.4, React 19.2, strict TypeScript with typed routes, CSS Modules. Requires Node.js 20.9 or later; CI runs on Node.js 24.
+Built with Next.js, React, strict TypeScript (typed routes) and CSS Modules. Exact versions are pinned in [`package.json`](package.json); CI runs on the Node.js version set in [`.github/workflows/ci.yml`](.github/workflows/ci.yml).
 
 ## Contents
 

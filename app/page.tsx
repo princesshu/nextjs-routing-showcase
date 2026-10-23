@@ -105,8 +105,7 @@ export default function Home() {
     <main>
       <h1>Next.js Routing Showcase</h1>
       <p className={styles.lead}>
-        Every major Next.js 16 App Router pattern — click through to see each
-        one.
+        Every major Next.js App Router pattern — click through to see each one.
       </p>
 
       {groups.map((group) => (

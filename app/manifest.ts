@@ -5,7 +5,8 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: 'Next.js Routing Showcase',
     short_name: 'Routing',
-    description: 'All major Next.js 16 App Router routing patterns',
+    description:
+      'Runnable reference for file-system routing in the Next.js App Router',
     start_url: '/',
     display: 'standalone',
     background_color: '#0a0a0a',

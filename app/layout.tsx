@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     template: '%s · Routing Showcase',
   },
   description:
-    'A comprehensive showcase of all Next.js 16 App Router routing patterns',
+    'Runnable reference for file-system routing in the Next.js App Router',
 };
 
 // LayoutProps<'/'> is generated from the route tree, so it already types the
