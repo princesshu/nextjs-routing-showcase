@@ -77,9 +77,50 @@ flowchart TD
 
 So `error.tsx` catches errors from the page and from `loading.tsx`, but not from the layout or template of its own segment, which sit above it. Those are handled by the parent segment's `error.tsx`, or by `global-error.tsx` at the root.
 
+## Component-level error boundaries
+
+`error.tsx` always covers a whole segment. To contain an error to one part of a page, wrap that part with a boundary created by `catchError` from `next/error` (stable since Next.js 16.3).
+
+**In this repo:** `/dashboard` has a status widget that throws a render error on demand. Only the widget is replaced by its fallback; the sidebar, the breadcrumb and the rest of the page keep working. Without the boundary, the error would reach `app/error.tsx` and replace everything below the root layout.
+
+```tsx
+// app/dashboard/_components/widget-boundary.tsx
+'use client';
+
+import { catchError, type ErrorInfo } from 'next/error';
+
+function WidgetError(
+  { title }: { title: string },
+  { error, retry }: ErrorInfo
+) {
+  const message = error instanceof Error ? error.message : String(error);
+  return (
+    <section role="alert">
+      <h3>{title} failed</h3>
+      <p>{message}</p>
+      <button onClick={() => retry()}>Try again</button>
+    </section>
+  );
+}
+
+export default catchError(WidgetError);
+```
+
+```tsx
+// app/dashboard/page.tsx
+<WidgetBoundary title="Status widget">
+  <FlakyWidget />
+</WidgetBoundary>
+```
+
+- The fallback receives the wrapper's props (here `title`) first, and `{ error, retry, reset }` second. It must live in a `'use client'` module.
+- `retry()` re-fetches and re-renders the wrapped part; `reset()` only clears the error state.
+- Unlike a hand-written React error boundary, it lets `redirect()` and `notFound()` through, and clears itself on client navigation to another route.
+- Error boundaries only catch errors thrown while rendering. The widget's button therefore only sets state, and the next render throws.
+
 ## Good to know
 
 - **Don't put authorization checks in a layout.** Layouts don't re-render on navigation, so the check would not run again on every route change. Check close to the data instead.
 - **Layouts can't read `searchParams`.** They would go stale, since layouts don't re-render. Use the page's `searchParams` prop or `useSearchParams()` in a Client Component.
 
-Reference: [layout.js](https://nextjs.org/docs/app/api-reference/file-conventions/layout), [template.js](https://nextjs.org/docs/app/api-reference/file-conventions/template), [Component hierarchy](https://nextjs.org/docs/app/getting-started/project-structure#component-hierarchy)
+Reference: [layout.js](https://nextjs.org/docs/app/api-reference/file-conventions/layout), [template.js](https://nextjs.org/docs/app/api-reference/file-conventions/template), [Component hierarchy](https://nextjs.org/docs/app/getting-started/project-structure#component-hierarchy), [catchError](https://nextjs.org/docs/app/api-reference/functions/catchError)

@@ -40,7 +40,7 @@ app/
 
 A folder starting with an underscore is opted out of routing, including everything inside it.
 
-**In this repo:** `app/dashboard/_components/breadcrumb.tsx`, `app/feed/_components/modal.tsx`.
+**In this repo:** `app/_components/pending-hint.tsx`, `app/dashboard/_components/` (breadcrumb, status widget), `app/feed/_components/modal.tsx`.
 
 Non-route files are already safe next to a page, because only `page` and `route` files are public; the CSS Modules in this repo rely on that. A private folder makes the intent explicit, and stays safe even if a file inside it is later named `page.tsx`.
 

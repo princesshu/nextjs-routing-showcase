@@ -1,5 +1,6 @@
 import type { Route } from 'next';
 import Link from 'next/link';
+import PendingHint from './_components/pending-hint';
 import styles from './page.module.css';
 
 // With typedRoutes, every href below is checked against the real route tree.
@@ -25,6 +26,11 @@ const groups: Group[] = [
         href: route('/products/1/reviews/1'),
         label: '/products/[id]/reviews/[reviewId]',
         note: 'nested dynamic + loading.tsx',
+      },
+      {
+        href: route('/products/1/specs'),
+        label: '/products/[id]/specs',
+        note: 'no loading.tsx: useLinkStatus spinner',
       },
       {
         href: route('/blog/hello-world'),
@@ -58,7 +64,11 @@ const groups: Group[] = [
   {
     title: 'Layouts & parallel routes',
     items: [
-      { href: '/dashboard', label: '/dashboard', note: '@sidebar slot' },
+      {
+        href: '/dashboard',
+        label: '/dashboard',
+        note: '@sidebar slot, catchError widget',
+      },
       { href: '/dashboard/settings', label: '/dashboard/settings' },
     ],
   },
@@ -107,6 +117,7 @@ export default function Home() {
               <li key={item.href} className={styles.item}>
                 <Link href={item.href} className={styles.route}>
                   {item.label}
+                  <PendingHint />
                 </Link>
                 {item.note && <span className={styles.note}>{item.note}</span>}
               </li>

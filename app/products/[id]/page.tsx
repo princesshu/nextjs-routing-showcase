@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
+import PendingHint from '@/app/_components/pending-hint';
 import { getProduct, products } from '@/lib/data';
 
 // Pre-render one static page per product at build time.
@@ -30,7 +31,22 @@ export default async function Product({ params }: PageProps<'/products/[id]'>) {
     <main>
       <h1>{product.name}</h1>
       <p>${product.price}</p>
-      <Link href={`/products/${id}/reviews/1`}>Read review #1</Link>
+      <h2>Two ways to handle a slow route</h2>
+      <ul>
+        <li>
+          <Link href={`/products/${id}/reviews/1`}>Read review #1</Link>: has a{' '}
+          <code>loading.tsx</code>, so navigation is instant and a fallback
+          shows while the review loads.
+        </li>
+        <li>
+          <Link href={`/products/${id}/specs`} prefetch={false}>
+            Specs
+            <PendingHint />
+          </Link>
+          : no <code>loading.tsx</code>, so the page waits for the server and
+          the link itself shows a <code>useLinkStatus</code> spinner.
+        </li>
+      </ul>
     </main>
   );
 }

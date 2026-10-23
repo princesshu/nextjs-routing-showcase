@@ -26,8 +26,17 @@ export const posts: Post[] = [
 export const getProduct = (id: string) => products.find((p) => p.id === id);
 export const getPost = (slug: string) => posts.find((p) => p.slug === slug);
 
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
 // Simulated network latency, so the reviews route's loading.tsx is visible.
 export async function getReview(productId: string, reviewId: string) {
-  await new Promise((resolve) => setTimeout(resolve, 800));
+  await delay(800);
   return { productId, reviewId, text: 'Solid build, would buy again.' };
+}
+
+// Same latency on the specs route, which has no loading.tsx: navigation waits
+// for the server, so the link's useLinkStatus hint has a pending state to show.
+export async function getSpecs(productId: string) {
+  await delay(1200);
+  return { productId, warranty: '2 years', shipsIn: '1–2 business days' };
 }

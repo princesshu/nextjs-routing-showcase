@@ -66,6 +66,7 @@ Every route in the app, generated from the `next build` output by [`scripts/rout
 | `/products`                         | `app/products/page.tsx`                         | page                                                | static        |
 | `/products/[id]`                    | `app/products/[id]/page.tsx`                    | page                                                | SSG (3 paths) |
 | `/products/[id]/reviews/[reviewId]` | `app/products/[id]/reviews/[reviewId]/page.tsx` | page                                                | dynamic       |
+| `/products/[id]/specs`              | `app/products/[id]/specs/page.tsx`              | page                                                | dynamic       |
 | `/register`                         | `app/(auth)/register/page.tsx`                  | page                                                | static        |
 | `/robots.txt`                       | `app/robots.ts`                                 | metadata route                                      | static        |
 | `/sitemap.xml`                      | `app/sitemap.ts`                                | metadata route                                      | static        |
@@ -76,24 +77,26 @@ Rendering, as reported by `next build`: **static** is prerendered at build time,
 
 ## Patterns
 
-| Pattern                 | In this repo                                                                                   | Docs                                                       |
-| ----------------------- | ---------------------------------------------------------------------------------------------- | ---------------------------------------------------------- |
-| Static route            | `app/about/page.tsx` → `/about`                                                                | [static-routes](docs/static-routes.md)                     |
-| Dynamic segment         | `app/products/[id]/page.tsx` → `/products/1`                                                   | [dynamic-routes](docs/dynamic-routes.md)                   |
-| Nested dynamic segments | `app/products/[id]/reviews/[reviewId]/page.tsx`                                                | [nested-routes](docs/nested-routes.md)                     |
-| Catch-all               | `app/help/[...slug]/page.tsx` → `/help/a/b/c`, but not `/help`                                 | [catch-all-routes](docs/catch-all-routes.md)               |
-| Optional catch-all      | `app/docs/[[...slug]]/page.tsx` → `/docs` and `/docs/a/b`                                      | [catch-all-routes](docs/catch-all-routes.md)               |
-| Route groups            | `app/(marketing)/`, `app/(auth)/` → not part of the URL                                        | [route-groups](docs/route-groups.md)                       |
-| Private folders         | `app/dashboard/_components/` → never routable                                                  | [route-groups](docs/route-groups.md#private-folders)       |
-| Layouts and templates   | `app/layout.tsx`, `app/dashboard/layout.tsx`, `app/template.tsx`                               | [layouts](docs/layouts.md)                                 |
-| Parallel routes         | `app/@analytics/`, `app/dashboard/@sidebar/`                                                   | [parallel-routes](docs/parallel-routes.md)                 |
-| Intercepting routes     | `app/feed/@modal/(..)photo/[id]/` → `/photo/1` as a modal                                      | [intercepting-routes](docs/intercepting-routes.md)         |
-| Proxy                   | `proxy.ts` → redirects `/admin` to `/`                                                         | [proxy](docs/proxy.md)                                     |
-| Route handlers          | `app/api/hello/`, `app/api/posts/`, `app/api/posts/[id]/`                                      | [api-routes](docs/api-routes.md)                           |
-| Static generation       | `generateStaticParams` in `products/[id]` and `blog/[slug]`                                    | [dynamic-routes](docs/dynamic-routes.md#static-generation) |
-| Metadata                | `generateMetadata` with a title template; `sitemap.ts`, `robots.ts`, `manifest.ts`, `icon.svg` | —                                                          |
-| Server Actions          | `app/(marketing)/contact/actions.ts` → `<form action>` and `redirect()`                        | —                                                          |
-| Auth interrupts         | `app/account/page.tsx` → `unauthorized()`, `forbidden()`                                       | [Behaviour](#streaming-fixes-the-status-code)              |
+| Pattern                  | In this repo                                                                                   | Docs                                                                    |
+| ------------------------ | ---------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| Static route             | `app/about/page.tsx` → `/about`                                                                | [static-routes](docs/static-routes.md)                                  |
+| Dynamic segment          | `app/products/[id]/page.tsx` → `/products/1`                                                   | [dynamic-routes](docs/dynamic-routes.md)                                |
+| Nested dynamic segments  | `app/products/[id]/reviews/[reviewId]/page.tsx`                                                | [nested-routes](docs/nested-routes.md)                                  |
+| Pending link state       | `useLinkStatus` in `app/_components/pending-hint.tsx` → link to `/products/1/specs`            | [nested-routes](docs/nested-routes.md#pending-state-without-loadingtsx) |
+| Catch-all                | `app/help/[...slug]/page.tsx` → `/help/a/b/c`, but not `/help`                                 | [catch-all-routes](docs/catch-all-routes.md)                            |
+| Optional catch-all       | `app/docs/[[...slug]]/page.tsx` → `/docs` and `/docs/a/b`                                      | [catch-all-routes](docs/catch-all-routes.md)                            |
+| Route groups             | `app/(marketing)/`, `app/(auth)/` → not part of the URL                                        | [route-groups](docs/route-groups.md)                                    |
+| Private folders          | `app/_components/`, `app/dashboard/_components/` → never routable                              | [route-groups](docs/route-groups.md#private-folders)                    |
+| Layouts and templates    | `app/layout.tsx`, `app/dashboard/layout.tsx`, `app/template.tsx`                               | [layouts](docs/layouts.md)                                              |
+| Component error boundary | `catchError` in `app/dashboard/_components/widget-boundary.tsx` → `/dashboard` widget          | [layouts](docs/layouts.md#component-level-error-boundaries)             |
+| Parallel routes          | `app/@analytics/`, `app/dashboard/@sidebar/`                                                   | [parallel-routes](docs/parallel-routes.md)                              |
+| Intercepting routes      | `app/feed/@modal/(..)photo/[id]/` → `/photo/1` as a modal                                      | [intercepting-routes](docs/intercepting-routes.md)                      |
+| Proxy                    | `proxy.ts` → redirects `/admin` to `/`                                                         | [proxy](docs/proxy.md)                                                  |
+| Route handlers           | `app/api/hello/`, `app/api/posts/`, `app/api/posts/[id]/`                                      | [api-routes](docs/api-routes.md)                                        |
+| Static generation        | `generateStaticParams` in `products/[id]` and `blog/[slug]`                                    | [dynamic-routes](docs/dynamic-routes.md#static-generation)              |
+| Metadata                 | `generateMetadata` with a title template; `sitemap.ts`, `robots.ts`, `manifest.ts`, `icon.svg` | —                                                                       |
+| Server Actions           | `app/(marketing)/contact/actions.ts` → `<form action>` and `redirect()`                        | —                                                                       |
+| Auth interrupts          | `app/account/page.tsx` → `unauthorized()`, `forbidden()`                                       | [Behaviour](#streaming-fixes-the-status-code)                           |
 
 ## Special files
 
