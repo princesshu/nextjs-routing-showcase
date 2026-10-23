@@ -1,58 +1,42 @@
-# Nested Dynamic Routes
+# Nested dynamic segments
 
-Multi-level dynamic routes nested within each other.
+Dynamic folders can be nested. The page receives the params of every dynamic segment from the root down.
+
+**In this repo:** `app/products/[id]/reviews/[reviewId]/page.tsx` → `/products/1/reviews/1`.
 
 ## How it works
-
-You can nest dynamic folders inside each other:
 
 ```
 app/
 └─ products/
    └─ [id]/
-      ├─ page.tsx              → /products/123
+      ├─ page.tsx              → /products/1
       └─ reviews/
          └─ [reviewId]/
-            └─ page.tsx        → /products/123/reviews/456
+            ├─ loading.tsx     → shown while the page loads
+            └─ page.tsx        → /products/1/reviews/1
 ```
 
 ## Example
 
 ```tsx
 // app/products/[id]/reviews/[reviewId]/page.tsx
-export default async function ReviewPage({
+import { getReview } from '@/lib/data';
+
+export default async function Review({
   params,
-}: {
-  params: Promise<{ id: string; reviewId: string }>;
-}) {
-  const { id, reviewId } = await params;
-  return (
-    <div>
-      <h1>Product: {id}</h1>
-      <h2>Review: {reviewId}</h2>
-    </div>
-  );
+}: PageProps<'/products/[id]/reviews/[reviewId]'>) {
+  const { id, reviewId } = await params; // both strings
+  const review = await getReview(id, reviewId);
+
+  return <h1>{review.text}</h1>;
 }
 ```
 
-> **Note**: Since Next.js 15, `params` is a Promise and must be awaited.
+## Loading state
 
-## Diagram
+`getReview()` waits 800 ms to simulate a slow fetch. The `loading.tsx` next to the page wraps it in a Suspense boundary, so navigating from `/products/1` shows "Loading review…" at once and then streams in the review.
 
-```
-URL: /products/123/reviews/456
-         │
-         ▼
-   [id] = "123"
-   [reviewId] = "456"
-         │
-         ▼
-   params = { id: "123", reviewId: "456" }
-```
+This is the only `loading.tsx` in the repo on purpose. A `loading.tsx` makes the response stream, and a streamed response keeps its 200 status even if `notFound()`, `forbidden()` or `unauthorized()` runs later. Placed at the root, it would cost `/account` its real 401 and 403 status codes. See [Streaming fixes the status code](../README.md#streaming-fixes-the-status-code).
 
-## When to use
-
-- Product reviews
-- Comment threads
-- Category > Subcategory > Product structures
-- Hierarchical content
+Reference: [Dynamic Routes](https://nextjs.org/docs/app/api-reference/file-conventions/dynamic-routes), [loading.js](https://nextjs.org/docs/app/api-reference/file-conventions/loading)

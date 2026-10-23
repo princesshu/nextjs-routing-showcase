@@ -3,6 +3,7 @@
 import type { Route } from 'next';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import styles from './breadcrumb.module.css';
 
 // A folder prefixed with "_" is a private folder: it is opted out of routing,
 // so this component never becomes a URL segment. Client navigation hooks like
@@ -12,7 +13,7 @@ export default function Breadcrumb() {
   const segments = pathname.split('/').filter(Boolean);
 
   return (
-    <nav aria-label="breadcrumb" className="mb-4 text-sm text-gray-500">
+    <nav aria-label="breadcrumb" className={styles.breadcrumb}>
       <Link href="/">home</Link>
       {segments.map((segment, index) => {
         // Built at runtime from the current pathname, so typedRoutes can't

@@ -5,6 +5,9 @@ import { forbidden, unauthorized } from 'next/navigation';
 //   /account?as=admin → renders the page
 //   /account?as=user  → forbidden()    → app/forbidden.tsx (403)
 //   /account          → unauthorized() → app/unauthorized.tsx (401)
+// The status codes are real because no loading.tsx sits above this route: once
+// a response is streaming, the status is already 200 and Next.js can only add
+// a noindex tag.
 export default async function Account({ searchParams }: PageProps<'/account'>) {
   const { as } = await searchParams;
 
@@ -12,8 +15,8 @@ export default async function Account({ searchParams }: PageProps<'/account'>) {
   if (as !== 'admin') forbidden();
 
   return (
-    <main className="p-8">
-      <h1 className="text-2xl font-bold">Account</h1>
+    <main>
+      <h1>Account</h1>
       <p>Welcome back, admin.</p>
     </main>
   );

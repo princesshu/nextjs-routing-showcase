@@ -1,67 +1,35 @@
-# Catch-All & Optional Catch-All Routes
+# Catch-all segments
 
-Handle URL segments of varying depth.
+`[...slug]` matches one or more URL segments. `[[...slug]]` (optional catch-all) also matches zero segments.
 
-## Catch-All: `[...slug]`
+**In this repo:** `app/help/[...slug]/page.tsx` → `/help/a/b/c`, `app/docs/[[...slug]]/page.tsx` → `/docs` and `/docs/a/b`.
 
-Catches all segments beyond the specified point.
+## How it works
 
-```
-app/help/[...slug]/page.tsx
-
-/help/a        → slug = ["a"]
-/help/a/b      → slug = ["a", "b"]
-/help/a/b/c    → slug = ["a", "b", "c"]
-/help          → 404 (does not match!)
-```
-
-## Optional Catch-All: `[[...slug]]`
-
-Same as above, but also matches the empty case.
-
-```
-app/docs/[[...slug]]/page.tsx
-
-/docs          → slug = undefined
-/docs/a        → slug = ["a"]
-/docs/a/b      → slug = ["a", "b"]
-```
-
-> **Heads up:** Don't place a required `[...slug]` and an optional `[[...slug]]` as siblings under the same parent — they both match non-empty paths and Next.js 16.2.3+ rejects this at build time (`InvariantError: Unexpected empty path segments match`). Put them under different parents (here: `help/[...slug]` and `docs/[[...slug]]`).
+| Route                           | URL           | `params`                    |
+| ------------------------------- | ------------- | --------------------------- |
+| `app/help/[...slug]/page.tsx`   | `/help`       | no match (404)              |
+| `app/help/[...slug]/page.tsx`   | `/help/a`     | `{ slug: ['a'] }`           |
+| `app/help/[...slug]/page.tsx`   | `/help/a/b/c` | `{ slug: ['a', 'b', 'c'] }` |
+| `app/docs/[[...slug]]/page.tsx` | `/docs`       | `{ slug: undefined }`       |
+| `app/docs/[[...slug]]/page.tsx` | `/docs/a/b`   | `{ slug: ['a', 'b'] }`      |
 
 ## Example
 
 ```tsx
 // app/docs/[[...slug]]/page.tsx
-export default async function DocsPage({
+export default async function DocsOptional({
   params,
-}: {
-  params: Promise<{ slug?: string[] }>;
-}) {
-  const { slug } = await params;
-  const path = slug?.join('/') || 'index';
-  return <h1>Docs: {path}</h1>;
+}: PageProps<'/docs/[[...slug]]'>) {
+  const { slug } = await params; // string[] | undefined
+  return <h1>Optional Docs Path: {slug?.join('/') || 'index'}</h1>;
 }
 ```
 
-> **Note**: Since Next.js 15, `params` is a Promise and must be awaited.
+## Good to know
 
-## Diagram
+- **A required and an optional catch-all cannot share a folder.** `help/[...slug]` and `help/[[...slug]]` side by side would both match every non-empty path. Next.js refuses to build that; in 16.2 and 16.4 the build stops with an internal `InvariantError` while collecting page data. That is why the two variants live under different parents here.
+- **A catch-all must be the last segment** of the route. Nothing can follow it.
+- **Typed routes and the bare optional URL:** the generated route types (checked on Next.js 16.2 and 16.4) cover `/docs/<slug>` but not the bare `/docs`, so the home page links to it with `'/docs' as Route`.
 
-```
-URL: /docs/getting-started/installation
-              │
-              ▼
-   [[...slug]] = ["getting-started", "installation"]
-              │
-              ▼
-   Breadcrumb: Docs > Getting Started > Installation
-```
-
-## When to use
-
-- Help centers
-- Documentation sites
-- File browsers
-- CMS content hierarchies
-- Wiki systems
+Reference: [Dynamic Routes](https://nextjs.org/docs/app/api-reference/file-conventions/dynamic-routes)

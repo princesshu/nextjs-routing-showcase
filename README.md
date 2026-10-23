@@ -1,477 +1,161 @@
-# Next.js Full Routing Showcase
+# Next.js Routing Showcase
 
-This repository demonstrates all major routing patterns in modern Next.js (App Router) using **Next.js 16**.
+A small, runnable reference for file-system routing in the Next.js 16 App Router. Every convention below has a working route in [`app/`](app) and a short explanation in [`docs/`](docs).
 
-## Table of Contents
+Next.js 16.4, React 19.2, strict TypeScript with typed routes, CSS Modules. Requires Node.js 20.9 or later; CI runs on Node.js 24.
 
-- [Features](#features)
-- [Project Structure](#project-structure-examples)
-- [Getting Started](#getting-started)
-- [Routing Patterns](#routing-patterns)
-- [Routing Flow Diagrams](#routing-flow-diagrams)
-- [Special Files](#special-files)
+## Contents
+
+- [Getting started](#getting-started)
+- [Route map](#route-map)
+- [Patterns](#patterns)
+- [Special files](#special-files)
+- [Behaviour worth knowing](#behaviour-worth-knowing)
+- [Type-safe routing](#type-safe-routing)
 - [Deployment](#deployment)
-- [Learn More](#learn-more)
 - [License](#license)
 
-## Features
-
-- Static pages
-- Dynamic pages
-- Nested dynamic pages
-- Catch-all & optional catch-all
-- Route groups
-- Private folders (`_components`)
-- Layout & nested layouts
-- Parallel routes (wired into a layout)
-- Intercepting routes (modal via client navigation)
-- Proxy (formerly Middleware)
-- API routes (multiple HTTP methods, `NextResponse.json`)
-- Static generation: `generateStaticParams`
-- Dynamic metadata: `generateMetadata` + title template
-- Server Actions (`'use server'`) with form `action`
-- Programmatic navigation: `redirect()`, `notFound()`
-- Auth interrupts: `forbidden()` / `unauthorized()`
-- Client navigation hooks: `usePathname` + `<Link>`
-- Metadata file conventions: `sitemap.ts`, `robots.ts`, `manifest.ts`, `icon.svg`
-- Type-safe routing: `typedRoutes` + `PageProps` / `LayoutProps` / `RouteContext`
-- Special files: `loading.tsx`, `error.tsx`, `not-found.tsx`, `global-error.tsx`
-
-## Project Structure Examples
-
-<details>
-<summary><strong>Static & Dynamic Routes</strong></summary>
-
-```
-app/
-├─ page.tsx                                     → /
-├─ about/page.tsx                               → /about
-├─ products/page.tsx                            → /products
-├─ products/[id]/page.tsx                       → /products/123
-├─ products/[id]/reviews/[reviewId]/page.tsx    → /products/123/reviews/456
-├─ blog/[slug]/page.tsx                         → /blog/my-post
-```
-
-</details>
-
-<details>
-<summary><strong>Catch-All Routes</strong></summary>
-
-```
-app/
-├─ help/[...slug]/page.tsx                      → /help/a/b/c
-├─ docs/[[...slug]]/page.tsx                    → /docs OR /docs/a/b
-```
-
-</details>
-
-<details>
-<summary><strong>Route Groups</strong></summary>
-
-```
-app/
-├─ (marketing)/home/page.tsx                    → /home
-├─ (marketing)/contact/page.tsx                 → /contact
-├─ (auth)/login/page.tsx                        → /login
-├─ (auth)/register/page.tsx                     → /register
-```
-
-</details>
-
-<details>
-<summary><strong>Layouts & Parallel Routes</strong></summary>
-
-```
-app/
-├─ layout.tsx                                   → root layout (accepts `analytics` slot)
-├─ dashboard/layout.tsx                         → layout for /dashboard/*
-├─ dashboard/page.tsx                           → /dashboard
-├─ dashboard/settings/page.tsx                  → /dashboard/settings
-├─ dashboard/@sidebar/page.tsx                  → parallel sidebar
-├─ dashboard/@sidebar/default.tsx               → parallel route fallback
-├─ @analytics/page.tsx                          → root-level parallel route
-├─ @analytics/default.tsx                       → fallback for unmatched siblings
-```
-
-</details>
-
-<details>
-<summary><strong>Intercepting Routes</strong></summary>
-
-```
-app/
-├─ feed/layout.tsx                              → accepts `modal` slot
-├─ feed/page.tsx                                → /feed
-├─ feed/@modal/(..)photo/[id]/page.tsx          → modal (intercepting)
-├─ feed/@modal/default.tsx                      → fallback when no modal is open
-├─ photo/[id]/page.tsx                          → /photo/123 (full page)
-```
-
-</details>
-
-<details>
-<summary><strong>API Routes</strong></summary>
-
-```
-app/
-├─ api/hello/route.ts                           → /api/hello (GET, POST)
-├─ api/posts/[id]/route.ts                      → /api/posts/:id (GET, DELETE)
-```
-
-</details>
-
-<details>
-<summary><strong>Data, Metadata & Server Actions</strong></summary>
-
-```
-lib/data.ts                                     → shared in-memory dataset
-app/
-├─ products/[id]/page.tsx                       → generateStaticParams + generateMetadata + notFound()
-├─ blog/[slug]/page.tsx                         → generateStaticParams + generateMetadata + notFound()
-├─ (marketing)/contact/page.tsx                 → <form action={serverAction}>
-├─ (marketing)/contact/actions.ts               → 'use server' action + redirect()
-├─ account/page.tsx                             → forbidden() / unauthorized()
-├─ dashboard/_components/breadcrumb.tsx         → private folder, usePathname (client hook)
-├─ sitemap.ts                                   → /sitemap.xml
-├─ robots.ts                                    → /robots.txt
-├─ manifest.ts                                  → /manifest.webmanifest
-├─ icon.svg                                     → favicon (metadata file)
-```
-
-</details>
-
-<details>
-<summary><strong>Special Files</strong></summary>
-
-```
-app/
-├─ layout.tsx                                   → root layout
-├─ template.tsx                                 → re-mounts on navigation
-├─ loading.tsx                                  → loading skeleton
-├─ error.tsx                                    → error boundary
-├─ not-found.tsx                                → custom 404
-├─ forbidden.tsx                                → custom 403 (experimental)
-├─ unauthorized.tsx                             → custom 401 (experimental)
-├─ global-error.tsx                             → global error boundary
-proxy.ts                                        → global proxy
-```
-
-</details>
-
-## Getting Started
+## Getting started
 
 ```bash
 npm install
 npm run dev
 ```
 
-Visit `http://localhost:3000`.
+Open http://localhost:3000. The home page links to every pattern.
 
-## Routing Patterns
+CI runs the same checks you can run locally:
 
-### 1. Static Routes
-
-`/about`, `/contact`, `/`
-
-Simple, file-based routes. Create a folder with a `page.tsx` file and you have a route.
-
-### 2. Dynamic Routes
-
-`/products/[id]`, `/blog/[slug]`
-
-Use square brackets to create dynamic segments that capture URL parameters.
-
-### 3. Nested Dynamic
-
-`/products/[id]/reviews/[reviewId]`
-
-Combine multiple dynamic segments for deeply nested routes.
-
-### 4. Catch-All & Optional Catch-All
-
-- `/help/[...slug]` → matches `/help/a`, `/help/a/b`, `/help/a/b/c`
-- `/docs/[[...slug]]` → also matches `/docs` (optional)
-
-> **Why two different parents?** A required `[...slug]` and an optional `[[...slug]]` as siblings under the same parent create an ambiguous match for non-empty paths (e.g. `/help/a` would match both). Next.js 16.2.3+ rejects this at build time. Separate parents — one `help/`, one `docs/` — is the idiomatic fix.
-
-### 5. Route Groups
-
-`(marketing)` and `(auth)` → group folders for organizational purposes, do not appear in URL.
-
-### 6. Layouts
-
-Layouts wrap a subtree and preserve state across navigation. Example: `dashboard/layout.tsx`
-
-### 7. Parallel Routes
-
-`@analytics` or `@sidebar` → render multiple UI slots simultaneously in the same layout.
-
-> A slot is only rendered if the enclosing `layout.tsx` receives it as a prop and places it in the JSX. Every named slot also needs a `default.tsx` fallback so sibling routes don't 404.
-
-Example — root-level `@analytics` wired into the root layout:
-
-```tsx
-// app/layout.tsx
-// LayoutProps<'/'> is generated from the route tree and includes the slot.
-export default function RootLayout({ children, analytics }: LayoutProps<'/'>) {
-  return (
-    <html lang="en">
-      <body>
-        {children}
-        <section aria-label="analytics-slot">{analytics}</section>
-      </body>
-    </html>
-  );
-}
+```bash
+npm run lint
+npm run typecheck              # next typegen && tsc --noEmit
+npm run format:check
+npm run build
+npm run route-map -- --check   # README route map matches the build
 ```
 
-### 8. Intercepting Routes
+## Route map
 
-`(..)` syntax overlays one route inside another, perfect for modal windows that preserve context.
+Every route in the app, generated from the `next build` output by [`scripts/route-map.mts`](scripts/route-map.mts). After changing routes, run `npm run build && npm run route-map`; CI fails if this table is out of date.
 
-> Interception only triggers on **client-side navigation**. Open `/feed` and click a photo to see the modal; refreshing `/photo/1` directly renders the full page. The `feed/@modal/(..)photo/[id]` slot only renders because `app/feed/layout.tsx` accepts and renders a `modal` prop, and the slot has a `default.tsx` for when no modal is active.
+<!-- route-map:start -->
 
-### 9. Proxy (Next.js 16)
+| URL                                 | File                                            | Kind                                                | Rendering     |
+| ----------------------------------- | ----------------------------------------------- | --------------------------------------------------- | ------------- |
+| `/`                                 | `app/page.tsx`                                  | page                                                | static        |
+| `/`                                 | `app/@analytics/page.tsx`                       | parallel slot `@analytics`                          | static        |
+| `/about`                            | `app/about/page.tsx`                            | page                                                | static        |
+| `/account`                          | `app/account/page.tsx`                          | page                                                | dynamic       |
+| `/api/hello`                        | `app/api/hello/route.ts`                        | route handler (GET, POST)                           | dynamic       |
+| `/api/posts`                        | `app/api/posts/route.ts`                        | route handler (GET, POST)                           | dynamic       |
+| `/api/posts/[id]`                   | `app/api/posts/[id]/route.ts`                   | route handler (GET, DELETE)                         | dynamic       |
+| `/blog/[slug]`                      | `app/blog/[slug]/page.tsx`                      | page                                                | SSG (2 paths) |
+| `/contact`                          | `app/(marketing)/contact/page.tsx`              | page                                                | dynamic       |
+| `/dashboard`                        | `app/dashboard/page.tsx`                        | page                                                | static        |
+| `/dashboard`                        | `app/dashboard/@sidebar/page.tsx`               | parallel slot `@sidebar`                            | static        |
+| `/dashboard/settings`               | `app/dashboard/settings/page.tsx`               | page                                                | static        |
+| `/docs/[[...slug]]`                 | `app/docs/[[...slug]]/page.tsx`                 | page                                                | dynamic       |
+| `/feed`                             | `app/feed/page.tsx`                             | page                                                | static        |
+| `/help/[...slug]`                   | `app/help/[...slug]/page.tsx`                   | page                                                | dynamic       |
+| `/home`                             | `app/(marketing)/home/page.tsx`                 | page                                                | static        |
+| `/icon.svg`                         | `app/icon.svg`                                  | metadata route                                      | static        |
+| `/login`                            | `app/(auth)/login/page.tsx`                     | page                                                | static        |
+| `/manifest.webmanifest`             | `app/manifest.ts`                               | metadata route                                      | static        |
+| `/photo/[id]`                       | `app/photo/[id]/page.tsx`                       | page                                                | dynamic       |
+| `/photo/[id]`                       | `app/feed/@modal/(..)photo/[id]/page.tsx`       | intercepting route (client navigation from `/feed`) | dynamic       |
+| `/products`                         | `app/products/page.tsx`                         | page                                                | static        |
+| `/products/[id]`                    | `app/products/[id]/page.tsx`                    | page                                                | SSG (3 paths) |
+| `/products/[id]/reviews/[reviewId]` | `app/products/[id]/reviews/[reviewId]/page.tsx` | page                                                | dynamic       |
+| `/register`                         | `app/(auth)/register/page.tsx`                  | page                                                | static        |
+| `/robots.txt`                       | `app/robots.ts`                                 | metadata route                                      | static        |
+| `/sitemap.xml`                      | `app/sitemap.ts`                                | metadata route                                      | static        |
 
-`proxy.ts` → intercept requests for auth checks, redirects, headers. Replaces `middleware.ts` from earlier versions.
+<!-- route-map:end -->
 
-### 10. API Routes
+Rendering, as reported by `next build`: **static** is prerendered at build time, **SSG** is prerendered once per `generateStaticParams` entry, **dynamic** is rendered on each request.
 
-`app/api/*/route.ts` → handle RESTful endpoints with GET, POST, PUT, DELETE handlers, returning `NextResponse.json`.
+## Patterns
 
-### 11. Static Generation & Dynamic Metadata
+| Pattern                 | In this repo                                                                                   | Docs                                                       |
+| ----------------------- | ---------------------------------------------------------------------------------------------- | ---------------------------------------------------------- |
+| Static route            | `app/about/page.tsx` → `/about`                                                                | [static-routes](docs/static-routes.md)                     |
+| Dynamic segment         | `app/products/[id]/page.tsx` → `/products/1`                                                   | [dynamic-routes](docs/dynamic-routes.md)                   |
+| Nested dynamic segments | `app/products/[id]/reviews/[reviewId]/page.tsx`                                                | [nested-routes](docs/nested-routes.md)                     |
+| Catch-all               | `app/help/[...slug]/page.tsx` → `/help/a/b/c`, but not `/help`                                 | [catch-all-routes](docs/catch-all-routes.md)               |
+| Optional catch-all      | `app/docs/[[...slug]]/page.tsx` → `/docs` and `/docs/a/b`                                      | [catch-all-routes](docs/catch-all-routes.md)               |
+| Route groups            | `app/(marketing)/`, `app/(auth)/` → not part of the URL                                        | [route-groups](docs/route-groups.md)                       |
+| Private folders         | `app/dashboard/_components/` → never routable                                                  | [route-groups](docs/route-groups.md#private-folders)       |
+| Layouts and templates   | `app/layout.tsx`, `app/dashboard/layout.tsx`, `app/template.tsx`                               | [layouts](docs/layouts.md)                                 |
+| Parallel routes         | `app/@analytics/`, `app/dashboard/@sidebar/`                                                   | [parallel-routes](docs/parallel-routes.md)                 |
+| Intercepting routes     | `app/feed/@modal/(..)photo/[id]/` → `/photo/1` as a modal                                      | [intercepting-routes](docs/intercepting-routes.md)         |
+| Proxy                   | `proxy.ts` → redirects `/admin` to `/`                                                         | [proxy](docs/proxy.md)                                     |
+| Route handlers          | `app/api/hello/`, `app/api/posts/`, `app/api/posts/[id]/`                                      | [api-routes](docs/api-routes.md)                           |
+| Static generation       | `generateStaticParams` in `products/[id]` and `blog/[slug]`                                    | [dynamic-routes](docs/dynamic-routes.md#static-generation) |
+| Metadata                | `generateMetadata` with a title template; `sitemap.ts`, `robots.ts`, `manifest.ts`, `icon.svg` | —                                                          |
+| Server Actions          | `app/(marketing)/contact/actions.ts` → `<form action>` and `redirect()`                        | —                                                          |
+| Auth interrupts         | `app/account/page.tsx` → `unauthorized()`, `forbidden()`                                       | [Behaviour](#streaming-fixes-the-status-code)              |
 
-`generateStaticParams` pre-renders one page per param at build time (`/products/[id]`, `/blog/[slug]` ship as SSG). `generateMetadata` resolves `<title>`/`<meta>` per route from the same async `params`.
+## Special files
 
-### 12. Server Actions
+| File               | Role                                                                                    |
+| ------------------ | --------------------------------------------------------------------------------------- |
+| `layout.tsx`       | Shared UI for a segment and everything below it. Keeps its state across navigation.     |
+| `template.tsx`     | Like a layout, but remounts when its own segment (including dynamic params) changes.    |
+| `loading.tsx`      | Suspense fallback for the segment. Makes the response stream; see below.                |
+| `error.tsx`        | Error boundary for the segment. `retry()` re-fetches and re-renders it (Next.js 16.3+). |
+| `global-error.tsx` | Replaces the root layout when it throws, so it renders its own `<html>` and `<body>`.   |
+| `not-found.tsx`    | UI for `notFound()` and for URLs that match no route.                                   |
+| `forbidden.tsx`    | UI for `forbidden()` (403). Experimental, enabled with `experimental.authInterrupts`.   |
+| `unauthorized.tsx` | UI for `unauthorized()` (401). Experimental, same flag.                                 |
+| `default.tsx`      | Fallback for a parallel slot that has no match on a full page load.                     |
 
-`'use server'` functions run only on the server and are called directly from a `<form action={...}>` — no API route or client `fetch`. See `app/(marketing)/contact/`.
+How these nest inside each other is shown in [docs/layouts.md](docs/layouts.md#component-hierarchy).
 
-### 13. Programmatic Navigation & Auth Interrupts
+## Behaviour worth knowing
 
-`redirect()` and `notFound()` from `next/navigation` control flow from Server Components. With `experimental.authInterrupts`, `forbidden()` / `unauthorized()` render `forbidden.tsx` / `unauthorized.tsx`.
+### Parallel slots keep their state on client navigation
 
-### 14. Metadata File Conventions
+A slot is a prop of the layout at the same level, and only renders where that layout places it. On client navigation an unmatched slot keeps its last active page; on a full page load it renders `default.tsx`. Try it: open `/`, follow a link, and the `@analytics` panel stays; reload, and it is gone.
 
-`sitemap.ts`, `robots.ts`, `manifest.ts`, and `icon.svg` are file-based routes too — they emit `/sitemap.xml`, `/robots.txt`, `/manifest.webmanifest`, and the favicon.
+Since Next.js 16 a slot without `default.tsx` fails the build when its layout has child routes. `app/dashboard/@sidebar/default.tsx` re-exports the sidebar page, so `/dashboard/settings` shows the same sidebar after a reload.
 
-### 15. Type-Safe Routing
+### Interception only happens on client navigation
 
-The route tree doubles as a type source. `next typegen` (also run by `next dev` / `next build`) generates global helpers, so no `params` type is written by hand:
+Clicking a photo on `/feed` renders `app/feed/@modal/(..)photo/[id]` inside a `<dialog>`, with the feed still behind it. Esc, a backdrop click or the Close button call `router.back()`. Loading `/photo/1` directly or reloading renders the full page in `app/photo/[id]`. That canonical page is required: since Next.js 16.4 the build fails if an interception route has none.
 
-- `PageProps<'/blog/[slug]'>` → pages and `generateMetadata`
-- `LayoutProps<'/dashboard'>` → layouts, including parallel slots (`sidebar`)
-- `RouteContext<'/api/posts/[id]'>` → Route Handlers
+### Streaming fixes the status code
 
-`typedRoutes: true` in `next.config.ts` also checks every `<Link href>` against the route tree. Non-literal hrefs (e.g. built from `usePathname()`) need an explicit `as Route` cast. The `typecheck` script runs `next typegen` first, so CI can type-check without a full build.
+`/account` returns a real 401, `/account?as=user` a 403. That only works because no `loading.tsx` sits above `/account`. A `loading.tsx` makes the page stream, and once streaming has started the status is already 200: `notFound()`, `forbidden()` and `unauthorized()` then only swap the UI and add a `noindex` tag. This is why the only `loading.tsx` in the repo lives on the reviews route, where `getReview()` simulates a slow fetch.
 
-## Routing Flow Diagrams
+### A required and an optional catch-all can't share a folder
 
-### Static Routes
+`help/[...slug]` and `help/[[...slug]]` side by side would both match every non-empty path. Next.js refuses to build that (in 16.2 and 16.4 with an internal `InvariantError` while collecting page data), so the two variants live under different parents here.
 
-```mermaid
-graph LR
-    A(app/) --> B(about/page.tsx)
-    A --> C(page.tsx)
-    B --> D(/about)
-    C --> E(/)
-```
+### Proxy is not an authorization layer
 
-### Dynamic Routes Flow
+`proxy.ts` replaced `middleware.ts`, which still works but is deprecated. Proxy runs on the Node.js runtime and suits redirects, rewrites, headers and optimistic checks. Server Actions are POST requests to the page that uses them, so a matcher change can silently stop covering them: check authorization where data is read or changed.
 
-```mermaid
-graph LR
-    A(/products) --> B("/products/[id]")
-    B --> C(/products/123)
-    B --> D(/products/456)
-    C --> E("/products/123/reviews/[reviewId]")
-    E --> F(/products/123/reviews/789)
-```
+## Type-safe routing
 
-### Catch-All Routes
+`next typegen` (also run by `next dev` and `next build`) turns the route tree into global types, so no `params` type is written by hand:
 
-```mermaid
-graph TD
-    A("help/[...slug]") --> B(/help/a)
-    A --> C(/help/a/b)
-    A --> D(/help/a/b/c)
-    E("docs/[[...slug]]") --> F(/docs)
-    E --> G(/docs/x)
-    E --> H(/docs/x/y)
-```
+- `PageProps<'/blog/[slug]'>` for pages and `generateMetadata`
+- `LayoutProps<'/dashboard'>` for layouts, including their slots (`sidebar`)
+- `RouteContext<'/api/posts/[id]'>` for route handlers
 
-### Route Groups Flow
-
-```mermaid
-graph TD
-    A(app/) --> B("(marketing)")
-    A --> C("(auth)")
-    B --> D(/home)
-    B --> E(/contact)
-    C --> F(/login)
-    C --> G(/register)
-```
-
-### Layout Nesting
-
-```mermaid
-graph TD
-    A(Root Layout) --> B(Dashboard Layout)
-    B --> C(/dashboard)
-    B --> D(/dashboard/settings)
-```
-
-### Parallel Routes
-
-```mermaid
-graph TD
-    A(layout.tsx) --> B(children)
-    A --> C("@sidebar")
-    A --> D("@analytics")
-```
-
-### Intercepting Routes Flow
-
-```mermaid
-graph LR
-    A(/feed) --> B(Modal)
-    B --> C(/photo/123)
-    C --> D(Full Page)
-```
-
-### Request Flow with Proxy
-
-```mermaid
-graph TD
-    A(Request) --> B(proxy.ts)
-    B --> C(Route Handler)
-    B --> D(Redirect)
-    C --> E(Response)
-```
-
-### API Routes
-
-```mermaid
-graph LR
-    A(Client) --> B(api/posts)
-    A --> C("api/posts/[id]")
-    B --> D(List/Create)
-    C --> E(Get/Delete)
-```
-
-## Special Files
-
-| File               | Purpose                                         |
-| ------------------ | ----------------------------------------------- |
-| `layout.tsx`       | Shared UI wrapper, preserves state              |
-| `template.tsx`     | Like layout, but re-mounts on navigation        |
-| `loading.tsx`      | Loading UI shown during navigation              |
-| `error.tsx`        | Error boundary for route segments               |
-| `not-found.tsx`    | Custom 404 page                                 |
-| `forbidden.tsx`    | Custom 403 page (Next.js 15+, **experimental**) |
-| `unauthorized.tsx` | Custom 401 page (Next.js 15+, **experimental**) |
-| `global-error.tsx` | Root-level error boundary                       |
-| `default.tsx`      | Fallback for parallel routes                    |
-
-> **Note**: `forbidden.tsx` and `unauthorized.tsx` require the experimental `authInterrupts` flag, which **is enabled** in this repo's [`next.config.ts`](next.config.ts):
->
-> ```ts
-> const nextConfig: NextConfig = {
->   experimental: { authInterrupts: true },
-> };
-> ```
->
-> They only render when your code calls `forbidden()` / `unauthorized()` from `next/navigation` — see [`app/account/page.tsx`](app/account/page.tsx). Try `/account` (401), `/account?as=user` (403), `/account?as=admin` (ok).
+With `typedRoutes: true` in `next.config.ts`, every literal `<Link href>` is checked against the same tree, so a typo such as `/prodcts/1` fails type-checking. Hrefs built at runtime, like the breadcrumb's, need an explicit `as Route` cast. The `typecheck` script runs `next typegen` first, so it works on a fresh checkout without a build.
 
 ## Deployment
 
-### Vercel
-
-```bash
-npm install -g vercel
-vercel
-```
-
-### Docker
-
-```dockerfile
-# Dockerfile
-FROM node:24-alpine AS builder
-WORKDIR /app
-COPY package*.json ./
-RUN npm ci
-COPY . .
-RUN npm run build
-
-FROM node:24-alpine AS runner
-WORKDIR /app
-COPY --from=builder /app/.next/standalone ./
-COPY --from=builder /app/.next/static ./.next/static
-COPY --from=builder /app/public ./public
-
-EXPOSE 3000
-CMD ["node", "server.js"]
-```
-
-```bash
-docker build -t nextjs-app .
-docker run -p 3000:3000 nextjs-app
-```
-
-### Standalone Mode
-
-Add to `next.config.ts`:
-
-```ts
-import type { NextConfig } from 'next';
-
-const nextConfig: NextConfig = {
-  output: 'standalone',
-};
-
-export default nextConfig;
-```
-
-```bash
-npm run build
-node .next/standalone/server.js
-```
-
-### Node.js Server
+The app needs a Node.js server or a platform such as Vercel. It uses Proxy, Server Actions, route handlers and request-time rendering, so a static export (`output: 'export'`) is not an option.
 
 ```bash
 npm run build
 npm run start
 ```
 
-### Static Export
-
-For static sites without server-side features:
-
-```ts
-// next.config.ts
-import type { NextConfig } from 'next';
-
-const nextConfig: NextConfig = {
-  output: 'export',
-};
-
-export default nextConfig;
-```
-
-```bash
-npm run build
-# Output in /out folder - deploy to any static host
-```
-
-## Learn More
-
-Check out the `/docs` folder for detailed explanations and diagrams of each routing pattern.
-
-- [Next.js Documentation](https://nextjs.org/docs)
-- [App Router Guide](https://nextjs.org/docs/app)
-- [Self-Hosting Guide](https://nextjs.org/docs/app/guides/self-hosting)
+For containers and other hosts, see the official [self-hosting guide](https://nextjs.org/docs/app/guides/self-hosting).
 
 ## License
 
-MIT - See [LICENSE](LICENSE) for details.
+MIT. See [LICENSE](LICENSE).

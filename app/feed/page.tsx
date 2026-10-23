@@ -5,14 +5,12 @@ import Link from 'next/link';
 // Refreshing /photo/1 directly bypasses the interception and shows the full page.
 export default function Feed() {
   return (
-    <main className="p-8">
-      <h1 className="mb-4 text-2xl font-bold">Feed</h1>
-      <ul className="space-y-1">
+    <main>
+      <h1>Feed</h1>
+      <ul>
         {[1, 2, 3].map((id) => (
           <li key={id}>
-            <Link href={`/photo/${id}`} className="text-blue-600 underline">
-              Open photo {id} (modal)
-            </Link>
+            <Link href={`/photo/${id}`}>Open photo {id} (modal)</Link>
           </li>
         ))}
       </ul>

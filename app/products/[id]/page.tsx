@@ -27,15 +27,10 @@ export default async function Product({ params }: PageProps<'/products/[id]'>) {
   if (!product) notFound();
 
   return (
-    <main className="p-8">
-      <h1 className="text-2xl font-bold">{product.name}</h1>
-      <p className="text-gray-600">${product.price}</p>
-      <Link
-        href={`/products/${id}/reviews/1`}
-        className="text-blue-600 underline"
-      >
-        Read review #1
-      </Link>
+    <main>
+      <h1>{product.name}</h1>
+      <p>${product.price}</p>
+      <Link href={`/products/${id}/reviews/1`}>Read review #1</Link>
     </main>
   );
 }

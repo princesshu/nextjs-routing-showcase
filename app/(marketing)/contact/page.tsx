@@ -1,29 +1,25 @@
 import { submitContact } from './actions';
+import styles from './contact.module.css';
 
 // Route groups don't appear in the URL, so the route key is '/contact'.
 export default async function Contact({ searchParams }: PageProps<'/contact'>) {
   const { sent } = await searchParams;
 
   return (
-    <main className="p-8">
-      <h1 className="mb-4 text-2xl font-bold">Contact</h1>
+    <main>
+      <h1>Contact</h1>
       {sent ? (
-        <p className="text-green-600">Thanks — we&apos;ll be in touch.</p>
+        <p role="status">Thanks — we&apos;ll be in touch.</p>
       ) : (
-        <form action={submitContact} className="flex max-w-sm flex-col gap-2">
+        <form action={submitContact} className={styles.form}>
           <input
             type="email"
             name="email"
             required
             placeholder="you@example.com"
-            className="rounded border px-3 py-2"
+            aria-label="Email"
           />
-          <button
-            type="submit"
-            className="rounded bg-blue-600 px-4 py-2 text-white"
-          >
-            Send
-          </button>
+          <button type="submit">Send</button>
         </form>
       )}
     </main>

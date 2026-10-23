@@ -1,8 +1,8 @@
 export default function Unauthorized() {
   return (
-    <div>
+    <main>
       <h1>401 - Unauthorized</h1>
       <p>You must be logged in to access this resource.</p>
-    </div>
+    </main>
   );
 }

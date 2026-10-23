@@ -25,3 +25,9 @@ export const posts: Post[] = [
 
 export const getProduct = (id: string) => products.find((p) => p.id === id);
 export const getPost = (slug: string) => posts.find((p) => p.slug === slug);
+
+// Simulated network latency, so the reviews route's loading.tsx is visible.
+export async function getReview(productId: string, reviewId: string) {
+  await new Promise((resolve) => setTimeout(resolve, 800));
+  return { productId, reviewId, text: 'Solid build, would buy again.' };
+}

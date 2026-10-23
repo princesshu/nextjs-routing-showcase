@@ -20,7 +20,7 @@ export default function RootLayout({ children, analytics }: LayoutProps<'/'>) {
     <html lang="en">
       <body>
         {children}
-        <section aria-label="analytics-slot">{analytics}</section>
+        {analytics}
       </body>
     </html>
   );

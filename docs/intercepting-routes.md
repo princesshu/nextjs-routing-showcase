@@ -1,96 +1,74 @@
-# Intercepting Routes
+# Intercepting routes
 
-"Intercept" routes - display one route within the current context.
+An intercepting route renders another route inside the current layout during client navigation. The URL still changes to the intercepted route, so it can be shared, and a reload shows that route's own page.
 
-## How it works
+**In this repo:** open `/feed` and click a photo. `/photo/1` opens as a modal over the feed; reload, and the full page from `app/photo/[id]` renders instead.
 
-Special syntax in the folder name:
+## Markers
 
-- `(.)` - same level
-- `(..)` - one level up
-- `(..)(..)` - two levels up
-- `(...)` - from the root app directory
+The marker in front of the folder name says where the intercepted route lives, counted in route segments:
 
-## Classic example: Modal
+| Marker     | Intercepts a route  |
+| ---------- | ------------------- |
+| `(.)`      | on the same level   |
+| `(..)`     | one level up        |
+| `(..)(..)` | two levels up       |
+| `(...)`    | from the `app` root |
 
-Because interception typically targets a **parallel slot**, the enclosing layout must accept that slot as a prop (see [Parallel Routes](./parallel-routes.md)). The slot also needs a `default.tsx` fallback for when no modal is active.
+Slots are not route segments. In `app/feed/@modal/(..)photo`, the `@modal` folder doesn't count, so `photo` is one level above `feed`, and `(..)` is the right marker.
+
+## Structure
 
 ```
 app/
 ├─ feed/
-│  ├─ layout.tsx                  → accepts `modal` prop (required)
-│  ├─ page.tsx                    → /feed
+│  ├─ layout.tsx                 ← renders {children} and {modal}
+│  ├─ page.tsx                   → /feed
+│  ├─ _components/
+│  │  └─ modal.tsx               → client <dialog> wrapper
 │  └─ @modal/
-│     ├─ default.tsx              → renders when no modal is open
+│     ├─ default.tsx             → null while no modal is open
 │     └─ (..)photo/
 │        └─ [id]/
-│           └─ page.tsx           → Modal overlay
+│           └─ page.tsx          → /photo/1 as a modal (client navigation)
 └─ photo/
    └─ [id]/
-      └─ page.tsx                 → /photo/123 (full page)
+      └─ page.tsx                → /photo/1 as a full page (direct load, reload)
 ```
+
+## Flow
+
+```mermaid
+flowchart TD
+  A["Navigation to /photo/1"] --> B{"How was it reached?"}
+  B -- "Link click on /feed (client navigation)" --> C["feed/@modal/(..)photo/[id]/page.tsx in the @modal slot, inside a dialog; the feed stays behind it"]
+  B -- "Direct load, reload or new tab" --> D["photo/[id]/page.tsx as a full page"]
+  C -- "Esc, backdrop click or Close: router.back()" --> E["/feed, where @modal renders default.tsx (null)"]
+```
+
+## The modal
+
+`app/feed/_components/modal.tsx` wraps the intercepted page in a native `<dialog>`. `showModal()` provides focus handling, Esc support and an inert page behind it. Every way of closing calls `router.back()`:
 
 ```tsx
-// app/feed/layout.tsx
-export default function FeedLayout({
-  children,
-  modal,
-}: {
-  children: React.ReactNode;
-  modal: React.ReactNode;
-}) {
-  return (
-    <>
-      {children}
-      {modal}
-    </>
-  );
-}
+<dialog
+  ref={dialogRef}
+  onCancel={(event) => {
+    event.preventDefault();
+    router.back();
+  }}
+  onClick={(event) => {
+    if (event.target === event.currentTarget) router.back();
+  }}
+>
 ```
 
-## Behavior
+Esc is handled through the `cancel` event, which fires only when the user asks to close the dialog, so `router.back()` runs exactly once per close.
 
-**Click in the feed:**
+## Good to know
 
-```
-/feed → click → /photo/123
-                    ↓
-            Modal appears (intercepted)
-            Feed remains visible behind it
-```
+- **A canonical page is required.** As of Next.js 16.4 the build fails if an interception route has no matching regular page: `app/photo/[id]/page.tsx` is what a reload or a shared link renders.
+- **The slot needs a `default.tsx`.** `@modal/default.tsx` returns `null`, so `/feed` renders without a modal on a full page load.
+- **Closing with a `<Link>` instead of `router.back()`:** an unmatched slot keeps its last active page on client navigation, so the modal would stay open. Add `@modal/page.tsx` returning `null` for the URL you link to, or `@modal/[...catchAll]/page.tsx` for deeper paths.
 
-**Direct URL or refresh:**
-
-```
-/photo/123 → Full photo page renders
-```
-
-## Diagram
-
-```
-Soft Navigation (Link):
-┌─────────────────────────────┐
-│ /feed                       │
-│ ┌─────────────────────────┐ │
-│ │ Modal (@modal)          │ │
-│ │ ┌─────────────────────┐ │ │
-│ │ │ Photo Content       │ │ │
-│ │ └─────────────────────┘ │ │
-│ └─────────────────────────┘ │
-└─────────────────────────────┘
-
-Hard Navigation (URL/Refresh):
-┌─────────────────────────────┐
-│ /photo/123                  │
-│                             │
-│    Full Photo Page          │
-│                             │
-└─────────────────────────────┘
-```
-
-## When to use
-
-- Image gallery modals (Instagram-style)
-- Login/Register modal overlay
-- Quick view product details
-- Modals with shareable URLs
+Reference: [Intercepting Routes](https://nextjs.org/docs/app/api-reference/file-conventions/intercepting-routes), [Parallel Routes: modals](https://nextjs.org/docs/app/api-reference/file-conventions/parallel-routes#modals)

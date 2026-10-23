@@ -1,15 +1,18 @@
 import Breadcrumb from './_components/breadcrumb';
+import styles from './dashboard.module.css';
 
+// A CSS Module colocated with the layout: only page.tsx and route.ts make a
+// segment public, so non-route files can live next to them safely.
 export default function DashboardLayout({
   children,
   sidebar,
 }: LayoutProps<'/dashboard'>) {
   return (
-    <div className="flex min-h-screen gap-6 p-8">
-      <div className="w-48 shrink-0 border-r pr-6">{sidebar}</div>
-      <div className="flex-1">
+    <div className={styles.shell}>
+      <div className={styles.sidebar}>{sidebar}</div>
+      <div className={styles.content}>
         <Breadcrumb />
-        <h2 className="mb-2 text-xl font-semibold">Dashboard</h2>
+        <h2 className={styles.title}>Dashboard</h2>
         {children}
       </div>
     </div>

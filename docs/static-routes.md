@@ -1,43 +1,36 @@
-# Static Routes
+# Static routes
 
-The simplest routing pattern in Next.js.
+A folder inside `app/` becomes a URL segment once it contains a `page.tsx`. A folder without a `page.tsx` (or `route.ts`) is not routable.
+
+**In this repo:** `app/page.tsx` → `/`, `app/about/page.tsx` → `/about`, `app/products/page.tsx` → `/products`.
 
 ## How it works
 
-Create a folder inside the `app/` directory and place a `page.tsx` file in it.
-
 ```
 app/
+├─ page.tsx          → /
 ├─ about/
-│  └─ page.tsx    → /about
-├─ contact/
-│  └─ page.tsx    → /contact
-└─ page.tsx       → /
+│  └─ page.tsx       → /about
+└─ products/
+   └─ page.tsx       → /products
 ```
 
 ## Example
 
 ```tsx
 // app/about/page.tsx
-export default function AboutPage() {
-  return <h1>About Us</h1>;
+export default function About() {
+  return (
+    <main>
+      <h1>About</h1>
+    </main>
+  );
 }
 ```
 
-## Diagram
+## Good to know
 
-```
-URL: /about
-         │
-         ▼
-   app/about/page.tsx
-         │
-         ▼
-   React Component renders
-```
+- Pages are Server Components by default. A page that reads no request-time data (cookies, headers, `searchParams`) is prerendered at build time and shows up as **static** in the [route map](../README.md#route-map).
+- Other files can live next to `page.tsx`: components, CSS Modules, tests. Only `page` and `route` files are publicly routable.
 
-## When to use
-
-- Fixed content pages (About, Contact, Home)
-- Marketing pages
-- Legal information (Privacy, Terms)
+Reference: [Layouts and pages](https://nextjs.org/docs/app/getting-started/layouts-and-pages)

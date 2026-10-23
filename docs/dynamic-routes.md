@@ -1,71 +1,56 @@
-# Dynamic Routes
+# Dynamic segments
 
-Handle dynamic URL segments using square brackets.
+A folder name in square brackets, such as `[id]`, matches any single URL segment and passes its value to the page as `params`.
+
+**In this repo:** `app/products/[id]/page.tsx` → `/products/1`, `app/blog/[slug]/page.tsx` → `/blog/hello-world`.
 
 ## How it works
-
-Wrap the folder name in square brackets: `[param]`
 
 ```
 app/
 ├─ products/
 │  └─ [id]/
-│     └─ page.tsx    → /products/123, /products/abc
-├─ blog/
-│  └─ [slug]/
-│     └─ page.tsx    → /blog/my-post
+│     └─ page.tsx    → /products/1, /products/abc
+└─ blog/
+   └─ [slug]/
+      └─ page.tsx    → /blog/hello-world
 ```
 
 ## Example
 
 ```tsx
 // app/products/[id]/page.tsx
-export default async function ProductPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id } = await params;
-  return <h1>Product: {id}</h1>;
+import { notFound } from 'next/navigation';
+import { getProduct } from '@/lib/data';
+
+export default async function Product({ params }: PageProps<'/products/[id]'>) {
+  const { id } = await params; // id: string
+  const product = getProduct(id);
+
+  if (!product) notFound();
+
+  return <h1>{product.name}</h1>;
 }
 ```
 
-> **Note**: Since Next.js 15, `params` is a Promise and must be awaited.
+- `params` is a Promise since Next.js 15. Await it in Server Components, or read it with React's `use()` in Client Components.
+- `PageProps<'/products/[id]'>` is a global type generated from the folder structure (Next.js 15.5+), so the param types cannot drift from the folder names. See [Type-safe routing](../README.md#type-safe-routing).
 
-## TypeScript: `PageProps`
-
-Instead of writing the `params` type by hand, use the global `PageProps` helper (Next.js 15.5+). It is generated from the folder structure by `next dev`, `next build` or `next typegen`:
+## Static generation
 
 ```tsx
-// app/products/[id]/page.tsx
-export default async function ProductPage({
-  params,
-}: PageProps<'/products/[id]'>) {
-  const { id } = await params; // id: string
-  return <h1>Product: {id}</h1>;
+export function generateStaticParams() {
+  return products.map((product) => ({ id: product.id }));
 }
 ```
 
-With `typedRoutes: true` in `next.config.ts`, `<Link href>` is checked against the same route tree: `href="/products/1"` compiles, `href="/prodcts/1"` is a type error.
+`/products/1`, `/products/2` and `/products/3` are prerendered at build time (**SSG** in the [route map](../README.md#route-map)). Other ids are still rendered on demand, because `dynamicParams` defaults to `true`: `/products/999` runs the page, reaches `notFound()` and returns a 404. Export `const dynamicParams = false` to return a 404 for every unlisted id without running the page.
 
-## Diagram
+`generateMetadata` receives the same `params`, so each product gets its own `<title>`. The root layout's title template turns `Quantum Keyboard` into `Quantum Keyboard · Routing Showcase`.
 
-```
-URL: /products/123
-         │
-         ▼
-   [id] = "123"
-         │
-         ▼
-   app/products/[id]/page.tsx
-         │
-         ▼
-   params.id → "123"
-```
+## Good to know
 
-## When to use
+- Param values are always strings (`string[]` for catch-all segments). Validate them before use.
+- With `typedRoutes` enabled, ``<Link href={`/products/${id}`}>`` is type-checked against this route.
 
-- Product pages
-- Blog posts
-- User profiles
-- Any content with unique identifiers
+Reference: [Dynamic Routes](https://nextjs.org/docs/app/api-reference/file-conventions/dynamic-routes), [generateStaticParams](https://nextjs.org/docs/app/api-reference/functions/generate-static-params)

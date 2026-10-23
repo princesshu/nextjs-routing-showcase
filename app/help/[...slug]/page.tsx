@@ -1,4 +1,9 @@
-export default async function Docs({ params }: PageProps<'/help/[...slug]'>) {
+// Required catch-all: matches /help/a, /help/a/b, ... but not /help itself.
+export default async function Help({ params }: PageProps<'/help/[...slug]'>) {
   const { slug } = await params;
-  return <h1>Docs Path: {slug.join('/')}</h1>;
+  return (
+    <main>
+      <h1>Help path: {slug.join('/')}</h1>
+    </main>
+  );
 }

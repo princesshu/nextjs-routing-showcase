@@ -2,21 +2,23 @@
 
 import { useEffect } from 'react';
 
+// retry() (stable since Next.js 16.3) re-fetches and re-renders the segment;
+// reset() only clears the error state without fetching again.
 export default function Error({
   error,
-  reset,
+  retry,
 }: {
-  error: Error & { digest?: string };
-  reset: () => void;
+  error: unknown;
+  retry: () => void;
 }) {
   useEffect(() => {
     console.error(error);
   }, [error]);
 
   return (
-    <div>
+    <main>
       <h2>Something went wrong.</h2>
-      <button onClick={() => reset()}>Try again</button>
-    </div>
+      <button onClick={() => retry()}>Try again</button>
+    </main>
   );
 }

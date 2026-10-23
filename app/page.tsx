@@ -1,5 +1,6 @@
 import type { Route } from 'next';
 import Link from 'next/link';
+import styles from './page.module.css';
 
 // With typedRoutes, every href below is checked against the real route tree.
 // Static literals check directly as Route; dynamic ones ('/products/1') only
@@ -18,17 +19,17 @@ const groups: Group[] = [
       {
         href: route('/products/1'),
         label: '/products/[id]',
-        note: 'dynamic + SSG',
+        note: 'SSG via generateStaticParams',
       },
       {
         href: route('/products/1/reviews/1'),
         label: '/products/[id]/reviews/[reviewId]',
-        note: 'nested dynamic',
+        note: 'nested dynamic + loading.tsx',
       },
       {
         href: route('/blog/hello-world'),
         label: '/blog/[slug]',
-        note: 'dynamic',
+        note: 'SSG',
       },
     ],
   },
@@ -80,6 +81,7 @@ const groups: Group[] = [
     title: 'API & metadata files',
     items: [
       { href: '/api/hello', label: '/api/hello' },
+      { href: '/api/posts', label: '/api/posts' },
       { href: route('/api/posts/1'), label: '/api/posts/[id]' },
       // Metadata routes aren't part of the typed route list, so cast them.
       { href: '/sitemap.xml' as Route, label: '/sitemap.xml' },
@@ -90,37 +92,28 @@ const groups: Group[] = [
 
 export default function Home() {
   return (
-    <main className="mx-auto min-h-screen max-w-3xl p-8">
-      <h1 className="mb-2 text-4xl font-bold">Next.js Routing Showcase</h1>
-      <p className="mb-8 text-lg text-gray-600 dark:text-gray-400">
+    <main>
+      <h1>Next.js Routing Showcase</h1>
+      <p className={styles.lead}>
         Every major Next.js 16 App Router pattern — click through to see each
         one.
       </p>
 
-      <div className="space-y-8">
-        {groups.map((group) => (
-          <section key={group.title}>
-            <h2 className="mb-2 text-sm font-semibold tracking-wide text-gray-400 uppercase">
-              {group.title}
-            </h2>
-            <ul className="space-y-1">
-              {group.items.map((item) => (
-                <li key={item.href} className="flex items-baseline gap-2">
-                  <Link
-                    href={item.href}
-                    className="font-mono text-blue-600 hover:underline dark:text-blue-400"
-                  >
-                    {item.label}
-                  </Link>
-                  {item.note && (
-                    <span className="text-xs text-gray-400">{item.note}</span>
-                  )}
-                </li>
-              ))}
-            </ul>
-          </section>
-        ))}
-      </div>
+      {groups.map((group) => (
+        <section key={group.title}>
+          <h2 className={styles.groupTitle}>{group.title}</h2>
+          <ul className={styles.list}>
+            {group.items.map((item) => (
+              <li key={item.href} className={styles.item}>
+                <Link href={item.href} className={styles.route}>
+                  {item.label}
+                </Link>
+                {item.note && <span className={styles.note}>{item.note}</span>}
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))}
     </main>
   );
 }

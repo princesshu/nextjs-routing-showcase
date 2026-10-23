@@ -1,3 +1,7 @@
 export default function MarketingHome() {
-  return <h1>Marketing Home</h1>;
+  return (
+    <main>
+      <h1>Marketing Home</h1>
+    </main>
+  );
 }
