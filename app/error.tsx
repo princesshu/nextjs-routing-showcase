@@ -17,7 +17,7 @@ export default function Error({
 
   return (
     <main>
-      <h2>Something went wrong.</h2>
+      <h1>Something went wrong.</h1>
       <button onClick={() => retry()}>Try again</button>
     </main>
   );

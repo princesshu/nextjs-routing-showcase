@@ -96,7 +96,7 @@ function WidgetError(
   const message = error instanceof Error ? error.message : String(error);
   return (
     <section role="alert">
-      <h3>{title} failed</h3>
+      <h2>{title} failed</h2>
       <p>{message}</p>
       <button onClick={() => retry()}>Try again</button>
     </section>

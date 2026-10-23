@@ -5,8 +5,7 @@ import Modal from '@/app/feed/_components/modal';
 export default async function PhotoModal({ params }: PageProps<'/photo/[id]'>) {
   const { id } = await params;
   return (
-    <Modal>
-      <h1>Photo {id}</h1>
+    <Modal title={`Photo ${id}`}>
       <p>
         Intercepted: <code>app/feed/@modal/(..)photo/[id]/page.tsx</code>{' '}
         rendered in the <code>@modal</code> slot, with the feed still behind it.

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useId, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import styles from './modal.module.css';
 
@@ -8,9 +8,19 @@ import styles from './modal.module.css';
 // handling, Esc support and an inert page behind it. Every way of closing goes
 // back in history: the URL returns to /feed and the @modal slot renders its
 // default.tsx (null) again.
-export default function Modal({ children }: { children: React.ReactNode }) {
+//
+// The title is an <h2> that also names the dialog (aria-labelledby): the page
+// behind it keeps the only <h1>.
+export default function Modal({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
   const router = useRouter();
   const dialogRef = useRef<HTMLDialogElement>(null);
+  const titleId = useId();
 
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -20,6 +30,7 @@ export default function Modal({ children }: { children: React.ReactNode }) {
   return (
     <dialog
       ref={dialogRef}
+      aria-labelledby={titleId}
       className={styles.dialog}
       // Esc fires `cancel` (removal from the DOM does not), so navigating
       // here can't trigger a second router.back().
@@ -39,6 +50,9 @@ export default function Modal({ children }: { children: React.ReactNode }) {
         >
           Close
         </button>
+        <h2 id={titleId} className={styles.title}>
+          {title}
+        </h2>
         {children}
       </div>
     </dialog>

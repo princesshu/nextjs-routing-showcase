@@ -12,7 +12,8 @@ export default function DashboardLayout({
       <div className={styles.sidebar}>{sidebar}</div>
       <div className={styles.content}>
         <Breadcrumb />
-        <h2 className={styles.title}>Dashboard</h2>
+        {/* A section label, not a heading: each page's <h1> is the title. */}
+        <p className={styles.section}>Dashboard</p>
         {children}
       </div>
     </div>

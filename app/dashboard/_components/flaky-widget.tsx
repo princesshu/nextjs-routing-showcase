@@ -12,7 +12,7 @@ export default function FlakyWidget() {
 
   return (
     <section className={styles.widget}>
-      <h3>Status widget</h3>
+      <h2>Status widget</h2>
       <p>All systems normal.</p>
       <button type="button" onClick={() => setBroken(true)}>
         Simulate a render error

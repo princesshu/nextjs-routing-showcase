@@ -14,7 +14,7 @@ function WidgetError(
 
   return (
     <section role="alert" className={`${styles.widget} ${styles.failed}`}>
-      <h3>{title} failed</h3>
+      <h2>{title} failed</h2>
       <p>{message}</p>
       <button type="button" onClick={() => retry()}>
         Try again

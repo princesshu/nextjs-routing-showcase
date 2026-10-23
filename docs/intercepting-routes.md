@@ -53,6 +53,7 @@ flowchart TD
 ```tsx
 <dialog
   ref={dialogRef}
+  aria-labelledby={titleId}
   onCancel={(event) => {
     event.preventDefault();
     router.back();
@@ -64,6 +65,8 @@ flowchart TD
 ```
 
 Esc is handled through the `cancel` event, which fires only when the user asks to close the dialog, so `router.back()` runs exactly once per close.
+
+The intercepted page passes its title as a prop (``<Modal title={`Photo ${id}`}>``). The modal renders it as an `<h2>` and points `aria-labelledby` at it, so screen readers announce the dialog by name, and the feed behind it keeps the page's only `<h1>`.
 
 ## Good to know
 
