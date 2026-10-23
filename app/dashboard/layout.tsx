@@ -3,10 +3,7 @@ import Breadcrumb from './_components/breadcrumb';
 export default function DashboardLayout({
   children,
   sidebar,
-}: {
-  children: React.ReactNode;
-  sidebar: React.ReactNode;
-}) {
+}: LayoutProps<'/dashboard'>) {
   return (
     <div className="flex min-h-screen gap-6 p-8">
       <div className="w-48 shrink-0 border-r pr-6">{sidebar}</div>

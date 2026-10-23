@@ -1,6 +1,12 @@
+import type { Route } from 'next';
 import Link from 'next/link';
 
-type Item = { href: string; label: string; note?: string };
+// With typedRoutes, every href below is checked against the real route tree.
+// Static literals check directly as Route; dynamic ones ('/products/1') only
+// check when the literal type is inferred — route() does that, then widens.
+const route = <T extends string>(href: Route<T>): Route => href as Route;
+
+type Item = { href: Route; label: string; note?: string };
 type Group = { title: string; items: Item[] };
 
 const groups: Group[] = [
@@ -9,20 +15,34 @@ const groups: Group[] = [
     items: [
       { href: '/about', label: '/about', note: 'static' },
       { href: '/products', label: '/products', note: 'static list' },
-      { href: '/products/1', label: '/products/[id]', note: 'dynamic + SSG' },
       {
-        href: '/products/1/reviews/1',
+        href: route('/products/1'),
+        label: '/products/[id]',
+        note: 'dynamic + SSG',
+      },
+      {
+        href: route('/products/1/reviews/1'),
         label: '/products/[id]/reviews/[reviewId]',
         note: 'nested dynamic',
       },
-      { href: '/blog/hello-world', label: '/blog/[slug]', note: 'dynamic' },
+      {
+        href: route('/blog/hello-world'),
+        label: '/blog/[slug]',
+        note: 'dynamic',
+      },
     ],
   },
   {
     title: 'Catch-all',
     items: [
-      { href: '/help/a/b/c', label: '/help/[...slug]', note: 'required' },
-      { href: '/docs', label: '/docs/[[...slug]]', note: 'optional' },
+      {
+        href: route('/help/a/b/c'),
+        label: '/help/[...slug]',
+        note: 'required',
+      },
+      // The generated route types (checked on Next.js 16.2 and 16.4) only cover
+      // /docs/<slug> for an optional catch-all, not the bare /docs URL.
+      { href: '/docs' as Route, label: '/docs/[[...slug]]', note: 'optional' },
     ],
   },
   {
@@ -45,7 +65,7 @@ const groups: Group[] = [
     title: 'Intercepting routes',
     items: [
       { href: '/feed', label: '/feed', note: 'open photo in a modal' },
-      { href: '/photo/1', label: '/photo/[id]', note: 'full page' },
+      { href: route('/photo/1'), label: '/photo/[id]', note: 'full page' },
     ],
   },
   {
@@ -60,9 +80,10 @@ const groups: Group[] = [
     title: 'API & metadata files',
     items: [
       { href: '/api/hello', label: '/api/hello' },
-      { href: '/api/posts/1', label: '/api/posts/[id]' },
-      { href: '/sitemap.xml', label: '/sitemap.xml' },
-      { href: '/robots.txt', label: '/robots.txt' },
+      { href: route('/api/posts/1'), label: '/api/posts/[id]' },
+      // Metadata routes aren't part of the typed route list, so cast them.
+      { href: '/sitemap.xml' as Route, label: '/sitemap.xml' },
+      { href: '/robots.txt' as Route, label: '/robots.txt' },
     ],
   },
 ];

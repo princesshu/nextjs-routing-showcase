@@ -41,6 +41,8 @@ export default function DashboardLayout({
 }
 ```
 
+> **TypeScript**: `LayoutProps<'/dashboard'>` (Next.js 15.5+) is generated from the route tree and already includes the `sidebar` slot, so a misspelled slot name is a type error. It does not check that the slot is rendered: leaving `{sidebar}` out of the JSX still compiles. This repo's layouts use it.
+
 ## Example: Root-level slot
 
 A parallel slot can also live directly under `app/`. The root layout must then accept it:

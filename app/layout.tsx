@@ -12,13 +12,10 @@ export const metadata: Metadata = {
     'A comprehensive showcase of all Next.js 16 App Router routing patterns',
 };
 
-export default function RootLayout({
-  children,
-  analytics,
-}: {
-  children: React.ReactNode;
-  analytics: React.ReactNode;
-}) {
+// LayoutProps<'/'> is generated from the route tree, so it already types the
+// @analytics slot (a misspelled slot name is a type error). It can't check
+// that the slot is actually rendered — that is still up to the JSX below.
+export default function RootLayout({ children, analytics }: LayoutProps<'/'>) {
   return (
     <html lang="en">
       <body>

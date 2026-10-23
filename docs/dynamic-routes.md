@@ -32,6 +32,22 @@ export default async function ProductPage({
 
 > **Note**: Since Next.js 15, `params` is a Promise and must be awaited.
 
+## TypeScript: `PageProps`
+
+Instead of writing the `params` type by hand, use the global `PageProps` helper (Next.js 15.5+). It is generated from the folder structure by `next dev`, `next build` or `next typegen`:
+
+```tsx
+// app/products/[id]/page.tsx
+export default async function ProductPage({
+  params,
+}: PageProps<'/products/[id]'>) {
+  const { id } = await params; // id: string
+  return <h1>Product: {id}</h1>;
+}
+```
+
+With `typedRoutes: true` in `next.config.ts`, `<Link href>` is checked against the same route tree: `href="/products/1"` compiles, `href="/prodcts/1"` is a type error.
+
 ## Diagram
 
 ```

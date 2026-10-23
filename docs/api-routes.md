@@ -63,6 +63,17 @@ export async function DELETE(
 
 > **Note**: Since Next.js 15, `params` is a Promise and must be awaited in Route Handlers too.
 
+> **TypeScript**: the second argument can be typed with the global `RouteContext` helper (Next.js 15.5+), generated from the folder structure:
+>
+> ```ts
+> export async function GET(
+>   request: Request,
+>   { params }: RouteContext<'/api/posts/[id]'>
+> ) {
+>   const { id } = await params; // id: string
+> }
+> ```
+
 ## Diagram
 
 ```

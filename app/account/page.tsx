@@ -5,11 +5,7 @@ import { forbidden, unauthorized } from 'next/navigation';
 //   /account?as=admin → renders the page
 //   /account?as=user  → forbidden()    → app/forbidden.tsx (403)
 //   /account          → unauthorized() → app/unauthorized.tsx (401)
-export default async function Account({
-  searchParams,
-}: {
-  searchParams: Promise<{ as?: string }>;
-}) {
+export default async function Account({ searchParams }: PageProps<'/account'>) {
   const { as } = await searchParams;
 
   if (!as) unauthorized();

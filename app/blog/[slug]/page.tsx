@@ -8,19 +8,13 @@ export function generateStaticParams() {
 
 export async function generateMetadata({
   params,
-}: {
-  params: Promise<{ slug: string }>;
-}): Promise<Metadata> {
+}: PageProps<'/blog/[slug]'>): Promise<Metadata> {
   const { slug } = await params;
   const post = getPost(slug);
   return { title: post ? post.title : 'Post not found' };
 }
 
-export default async function Blog({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
+export default async function Blog({ params }: PageProps<'/blog/[slug]'>) {
   const { slug } = await params;
   const post = getPost(slug);
 

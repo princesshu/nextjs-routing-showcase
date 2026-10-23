@@ -1,10 +1,4 @@
-export default function FeedLayout({
-  children,
-  modal,
-}: {
-  children: React.ReactNode;
-  modal: React.ReactNode;
-}) {
+export default function FeedLayout({ children, modal }: LayoutProps<'/feed'>) {
   return (
     <>
       {children}

@@ -1,10 +1,7 @@
 import { submitContact } from './actions';
 
-export default async function Contact({
-  searchParams,
-}: {
-  searchParams: Promise<{ sent?: string }>;
-}) {
+// Route groups don't appear in the URL, so the route key is '/contact'.
+export default async function Contact({ searchParams }: PageProps<'/contact'>) {
   const { sent } = await searchParams;
 
   return (

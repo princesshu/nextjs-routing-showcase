@@ -1,29 +1,20 @@
 # Next.js Full Routing Showcase
 
-![Next.js](https://img.shields.io/badge/Next.js-16-black?style=flat-square&logo=next.js)
-![React](https://img.shields.io/badge/React-19.2-blue?style=flat-square&logo=react)
-![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)
-![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue?style=flat-square&logo=typescript)
-
 This repository demonstrates all major routing patterns in modern Next.js (App Router) using **Next.js 16**.
 
----
+## Table of Contents
 
-## 📑 Table of Contents
+- [Features](#features)
+- [Project Structure](#project-structure-examples)
+- [Getting Started](#getting-started)
+- [Routing Patterns](#routing-patterns)
+- [Routing Flow Diagrams](#routing-flow-diagrams)
+- [Special Files](#special-files)
+- [Deployment](#deployment)
+- [Learn More](#learn-more)
+- [License](#license)
 
-- [Features](#-features)
-- [Project Structure](#-project-structure)
-- [Getting Started](#-getting-started)
-- [Routing Patterns](#-routing-patterns)
-- [Routing Flow Diagrams](#-routing-flow-diagrams)
-- [Special Files](#-special-files)
-- [Deployment](#-deployment)
-- [Learn More](#-learn-more)
-- [License](#-license)
-
----
-
-## ✨ Features
+## Features
 
 - Static pages
 - Dynamic pages
@@ -43,11 +34,10 @@ This repository demonstrates all major routing patterns in modern Next.js (App R
 - Auth interrupts: `forbidden()` / `unauthorized()`
 - Client navigation hooks: `usePathname` + `<Link>`
 - Metadata file conventions: `sitemap.ts`, `robots.ts`, `manifest.ts`, `icon.svg`
+- Type-safe routing: `typedRoutes` + `PageProps` / `LayoutProps` / `RouteContext`
 - Special files: `loading.tsx`, `error.tsx`, `not-found.tsx`, `global-error.tsx`
 
----
-
-## 📁 Project Structure Examples
+## Project Structure Examples
 
 <details>
 <summary><strong>Static & Dynamic Routes</strong></summary>
@@ -168,9 +158,7 @@ proxy.ts                                        → global proxy
 
 </details>
 
----
-
-## 🚀 Getting Started
+## Getting Started
 
 ```bash
 npm install
@@ -179,9 +167,7 @@ npm run dev
 
 Visit `http://localhost:3000`.
 
----
-
-## 🛤️ Routing Patterns
+## Routing Patterns
 
 ### 1. Static Routes
 
@@ -226,13 +212,8 @@ Example — root-level `@analytics` wired into the root layout:
 
 ```tsx
 // app/layout.tsx
-export default function RootLayout({
-  children,
-  analytics,
-}: {
-  children: React.ReactNode;
-  analytics: React.ReactNode;
-}) {
+// LayoutProps<'/'> is generated from the route tree and includes the slot.
+export default function RootLayout({ children, analytics }: LayoutProps<'/'>) {
   return (
     <html lang="en">
       <body>
@@ -274,9 +255,17 @@ export default function RootLayout({
 
 `sitemap.ts`, `robots.ts`, `manifest.ts`, and `icon.svg` are file-based routes too — they emit `/sitemap.xml`, `/robots.txt`, `/manifest.webmanifest`, and the favicon.
 
----
+### 15. Type-Safe Routing
 
-## 📊 Routing Flow Diagrams
+The route tree doubles as a type source. `next typegen` (also run by `next dev` / `next build`) generates global helpers, so no `params` type is written by hand:
+
+- `PageProps<'/blog/[slug]'>` → pages and `generateMetadata`
+- `LayoutProps<'/dashboard'>` → layouts, including parallel slots (`sidebar`)
+- `RouteContext<'/api/posts/[id]'>` → Route Handlers
+
+`typedRoutes: true` in `next.config.ts` also checks every `<Link href>` against the route tree. Non-literal hrefs (e.g. built from `usePathname()`) need an explicit `as Route` cast. The `typecheck` script runs `next typegen` first, so CI can type-check without a full build.
+
+## Routing Flow Diagrams
 
 ### Static Routes
 
@@ -370,9 +359,7 @@ graph LR
     C --> E(Get/Delete)
 ```
 
----
-
-## 📄 Special Files
+## Special Files
 
 | File               | Purpose                                         |
 | ------------------ | ----------------------------------------------- |
@@ -396,9 +383,7 @@ graph LR
 >
 > They only render when your code calls `forbidden()` / `unauthorized()` from `next/navigation` — see [`app/account/page.tsx`](app/account/page.tsx). Try `/account` (401), `/account?as=user` (403), `/account?as=admin` (ok).
 
----
-
-## 🚢 Deployment
+## Deployment
 
 ### Vercel
 
@@ -479,9 +464,7 @@ npm run build
 # Output in /out folder - deploy to any static host
 ```
 
----
-
-## 📚 Learn More
+## Learn More
 
 Check out the `/docs` folder for detailed explanations and diagrams of each routing pattern.
 
@@ -489,8 +472,6 @@ Check out the `/docs` folder for detailed explanations and diagrams of each rout
 - [App Router Guide](https://nextjs.org/docs/app)
 - [Self-Hosting Guide](https://nextjs.org/docs/app/guides/self-hosting)
 
----
-
-## 📜 License
+## License
 
 MIT - See [LICENSE](LICENSE) for details.

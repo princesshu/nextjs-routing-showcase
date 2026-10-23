@@ -1,5 +1,6 @@
 'use client';
 
+import type { Route } from 'next';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
@@ -14,7 +15,9 @@ export default function Breadcrumb() {
     <nav aria-label="breadcrumb" className="mb-4 text-sm text-gray-500">
       <Link href="/">home</Link>
       {segments.map((segment, index) => {
-        const href = '/' + segments.slice(0, index + 1).join('/');
+        // Built at runtime from the current pathname, so typedRoutes can't
+        // check it statically — non-literal hrefs need an explicit cast.
+        const href = ('/' + segments.slice(0, index + 1).join('/')) as Route;
         return (
           <span key={href}>
             {' / '}

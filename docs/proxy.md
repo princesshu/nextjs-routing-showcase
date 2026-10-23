@@ -17,9 +17,9 @@ project/
 
 ```tsx
 // proxy.ts
-import { NextResponse } from 'next/server';
+import { NextResponse, NextRequest } from 'next/server';
 
-export function proxy(req) {
+export function proxy(req: NextRequest) {
   // Protect admin pages
   if (req.nextUrl.pathname.startsWith('/admin')) {
     return NextResponse.redirect(new URL('/', req.url));

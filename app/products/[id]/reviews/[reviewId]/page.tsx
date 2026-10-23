@@ -1,8 +1,6 @@
 export default async function Review({
   params,
-}: {
-  params: Promise<{ id: string; reviewId: string }>;
-}) {
+}: PageProps<'/products/[id]/reviews/[reviewId]'>) {
   const { id, reviewId } = await params;
   return (
     <h1>
